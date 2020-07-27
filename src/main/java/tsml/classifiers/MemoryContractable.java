@@ -14,7 +14,7 @@
  */
 package tsml.classifiers;
 
-import tsml.classifiers.distance_based.utils.MemoryWatchable;
+import tsml.classifiers.distance_based.utils.system.memory.MemoryWatchable;
 
 /**
  * Interface that allows the user to impose a memory contract of a classifier that
@@ -55,7 +55,7 @@ public interface MemoryContractable extends MemoryWatchable {
     default double getStdDevMemoryUsageInBytes() {
         return -1;
     }
-    default long getGarbageCollectionTimeInMillis() {
+    default long getGarbageCollectionTimeInNanos() {
         return -1;
     }
     default long getMemoryReadingCount() {

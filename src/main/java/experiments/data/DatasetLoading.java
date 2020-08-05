@@ -111,6 +111,11 @@ public class DatasetLoading {
         return sampleDataset(BAKED_IN_TSC_DATA_PATH, "ItalyPowerDemand", seed);
     }
 
+    /**
+     * BEWARE! This loads both the train and test split into one instances object!
+     * @return
+     * @throws Exception
+     */
     public static Instances loadItalyPowerDemand() throws Exception {
         final Instances[] instances = sampleItalyPowerDemand(0);
         instances[0].addAll(instances[1]);
@@ -121,6 +126,11 @@ public class DatasetLoading {
         return sampleDataset(BAKED_IN_TSC_DATA_PATH, "GunPoint", seed);
     }
 
+    /**
+     * BEWARE! This loads both the train and test split into one instances object!
+     * @return
+     * @throws Exception
+     */
     public static Instances loadGunPoint() throws Exception {
         final Instances[] instances = sampleGunPoint(0);
         instances[0].addAll(instances[1]);
@@ -144,6 +154,11 @@ public class DatasetLoading {
         return sampleDataset(BAKED_IN_TSC_DATA_PATH, "Beef", seed);
     }
 
+    /**
+     * BEWARE! This loads both the train and test split into one instances object!
+     * @return
+     * @throws Exception
+     */
     public static Instances loadBeef() throws Exception {
         final Instances[] instances = sampleBeef(0);
         instances[0].addAll(instances[1]);

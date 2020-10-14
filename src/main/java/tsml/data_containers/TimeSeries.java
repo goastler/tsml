@@ -28,7 +28,7 @@ public class TimeSeries{
 
     private List<Double> series;
     private List<Double> indices;
-    MetaData md;
+    private MetaData md;
 
 
     public TimeSeries(double[] d){

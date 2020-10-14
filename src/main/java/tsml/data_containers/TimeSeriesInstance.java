@@ -19,13 +19,13 @@ import java.util.stream.IntStream;
 public class TimeSeriesInstance implements Iterable<TimeSeries> {
 
     /* Meta Information */
-    boolean isMultivariate;
-    boolean isEquallySpaced;
-    boolean hasMissing;
-    boolean isEqualLength;
+    private boolean isMultivariate;
+    private boolean isEquallySpaced;
+    private boolean hasMissing;
+    private boolean isEqualLength;
 
-    int minLength;
-    int maxLength;
+    private int minLength;
+    private int maxLength;
 
     /** 
      * @return boolean
@@ -53,9 +53,9 @@ public class TimeSeriesInstance implements Iterable<TimeSeries> {
 
 
     /* Data */
-    List<TimeSeries> seriesDimensions;
-    int classLabelIndex;
-    double targetValue;
+    private List<TimeSeries> seriesDimensions;
+    private int classLabelIndex;
+    private double targetValue;
 
     // this ctor can be made way more sophisticated.
     public TimeSeriesInstance(List<List<Double>> series, Double value) {

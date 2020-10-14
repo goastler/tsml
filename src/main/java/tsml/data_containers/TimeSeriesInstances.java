@@ -16,19 +16,19 @@ import java.util.stream.Collectors;
 public class TimeSeriesInstances implements Iterable<TimeSeriesInstance> {
 
     /* Meta Information */
-    String description;
-    String problemName;
-    boolean isEquallySpaced = true;
-    boolean hasMissing;
-    boolean isEqualLength;
+    private String description;
+    private String problemName;
+    private boolean isEquallySpaced = true;
+    private boolean hasMissing;
+    private boolean isEqualLength;
 
-    boolean isMultivariate;
-    boolean hasTimeStamps;
+    private boolean isMultivariate;
+    private boolean hasTimeStamps;
 
     // this could be by dimension, so could be a list.
-    int minLength;
-    int maxLength;
-    int maxNumDimensions;
+    private int minLength;
+    private int maxLength;
+    private int maxNumDimensions;
 
 
 	
@@ -161,13 +161,13 @@ public class TimeSeriesInstances implements Iterable<TimeSeriesInstance> {
 
     /* End Meta Information */
 
-    List<TimeSeriesInstance> seriesCollection;
+    private List<TimeSeriesInstance> seriesCollection;
 
     // mapping for class labels. so ["apple","orange"] => [0,1]
     // this could be optional for example regression problems.
-    String[] classLabels;
+    private String[] classLabels;
 
-    int[] classCounts;
+    private int[] classCounts;
 
     public TimeSeriesInstances() {
         seriesCollection = new ArrayList<>();

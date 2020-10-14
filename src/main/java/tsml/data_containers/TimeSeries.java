@@ -17,36 +17,46 @@ import java.util.stream.Stream;
  * Hopefully most of this can be encapsulated, so if the data has equal increments then indices is null and the user
 
  * */
-public class TimeSeries{
+public class TimeSeries
+//        extends AbstractList<Double> 
+                {
 
     public static double DEFAULT_VALUE = Double.NaN;
 
-    /*
-    private double[] series;
-    private double[] indices;
-    */
-
+    // the list of channels / dimensions
     private List<Double> series;
     private List<Double> indices;
+    // todo is this metadata stuff redundant now? Should be able to mirror the setup in TimeSeriesInstance for metadata handling
     private MetaData md;
 
 
-    public TimeSeries(double[] d){
-        series = new ArrayList<Double>();
-        for(double dd : d)
-            series.add(dd);
+    public TimeSeries(double[] series){
+        setSeries(series);
+    }
+    
+    public TimeSeries(List<Double> series) {
+        setSeries(series);
     }
     
     
     /** 
      * @param ind
      */
-    public void setIndices(double[] ind){
-        indices = new ArrayList<Double>();
-        for(double i : ind)
-            indices.add(i);
+    public void setIndices(double[] indices){
+        setIndices(DoubleStream.of(indices).boxed().collect(Collectors.toList()));
     }
-
+    
+    public void setIndices(List<Double> indices) {
+        this.indices = indices;
+    }
+    
+    public void setSeries(double[] series) {
+        setSeries(DoubleStream.of(series).boxed().collect(Collectors.toList()));
+    }
+    
+    public void setSeries(List<Double> series) {
+        this.series = series;
+    }
     
     /** 
      * @return int
@@ -54,7 +64,6 @@ public class TimeSeries{
     public int getSeriesLength(){
         return series.size();
     }
-
     
     /** 
      * @param i
@@ -146,7 +155,11 @@ public class TimeSeries{
         return sb.toString();
     }
 
-    
+
+    public int size() {
+        return series.size();
+    }
+
     /** 
      * @return double[]
      */

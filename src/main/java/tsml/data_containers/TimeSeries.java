@@ -150,11 +150,18 @@ public class TimeSeries
      */
     @Override
     public String toString(){
+        
+        if(isEmpty()) {
+            return "";
+        }
+        
         StringBuilder sb = new StringBuilder();
 
-        for(double val : series){
+        for(int i = 0, seriesSize = series.size(); i < seriesSize - 1; i++) {
+            final double val = series.get(i);
             sb.append(val).append(',');
         }
+        sb.append(series.get(series.size() - 1));
 
         return sb.toString();
     }

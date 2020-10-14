@@ -234,9 +234,18 @@ public List<Double> toListWithoutIndexes(List<Integer> indexesToRemove){
         return this.series.hashCode();
     }
 
+    @Override public boolean equals(final Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(!(o instanceof TimeSeries)) {
+            return false;
+        }
+        final TimeSeries series1 = (TimeSeries) o;
+        return series.equals(series1.series);
+    }
 
-    
-    /** 
+                    /** 
      * @param args
      */
     public static void main(String[] args) {

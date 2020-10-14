@@ -1,11 +1,7 @@
 package tsml.data_containers;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -18,7 +14,7 @@ import java.util.stream.Stream;
 
  * */
 public class TimeSeries
-//        extends AbstractList<Double> 
+        extends AbstractList<Double> 
                 {
 
     public static double DEFAULT_VALUE = Double.NaN;
@@ -38,7 +34,6 @@ public class TimeSeries
         setSeries(series);
     }
     
-    
     /** 
      * @param ind
      */
@@ -57,8 +52,26 @@ public class TimeSeries
     public void setSeries(List<Double> series) {
         this.series = series;
     }
-    
-    /** 
+
+    @Override public void add(final int i, final Double value) {
+        if(indices != null) {
+            // todo handle indices
+        }
+        series.add(i, value);
+    }
+
+    @Override public Double remove(final int i) {
+        if(indices != null) {
+            indices.remove(i);
+        }
+        return series.remove(i);
+    }
+
+    @Override public Double set(final int i, final Double value) {
+        return series.set(i, value);
+    }
+
+                    /** 
      * @return int
      */
     public int getSeriesLength(){
@@ -81,7 +94,7 @@ public class TimeSeries
      * @param i
      * @return double
      */
-    public double get(int i){
+    public Double get(int i){
         return series.get(i);
     }
 
@@ -90,18 +103,9 @@ public class TimeSeries
      * @param i
      * @return double
      */
-    public double getOrDefault(int i){
+    public Double getOrDefault(int i){
         return hasValidValueAt(i) ? get(i) : DEFAULT_VALUE;
     }
-
-    
-    /** 
-     * @return DoubleStream
-     */
-    public DoubleStream stream(){
-        return series.stream().mapToDouble(Double::doubleValue);
-    }
-
     
     /** 
      * @param start
@@ -164,7 +168,7 @@ public class TimeSeries
      * @return double[]
      */
 
-	public double[] toArray() {
+	public double[] toArrayPrimitive() {
 		return getSeries().stream().mapToDouble(Double::doubleValue).toArray();
     }
 
@@ -174,7 +178,7 @@ public class TimeSeries
      * @param indexesToRemove
      * @return List<Double>
      */
-public List<Double> toListWithoutIndexes(List<Integer> indexesToRemove){
+    public List<Double> toListWithoutIndexes(List<Integer> indexesToRemove){
         //if the current index isn't in the removal list, then copy across.
         List<Double> out = new ArrayList<>(this.getSeriesLength() - indexesToRemove.size());
         for(int i=0; i<this.getSeriesLength(); ++i){

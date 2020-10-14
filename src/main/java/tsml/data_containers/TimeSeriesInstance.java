@@ -49,6 +49,14 @@ public class TimeSeriesInstance implements Iterable<TimeSeries> {
         return maxLength;
     }
 
+    public boolean isMultivariate() {
+        return isMultivariate;
+    }
+
+    public boolean hasMissing() {
+        return hasMissing;
+    }
+
     /* End Meta Information */
 
 

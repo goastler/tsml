@@ -83,12 +83,7 @@ public class TimeSeriesInstance implements Iterable<TimeSeries> {
 
     //do the ctor this way round to avoid erasure problems :(
     public TimeSeriesInstance(int labelIndex, List<TimeSeries> series) {
-        seriesDimensions = new ArrayList<TimeSeries>();
-
-        for (TimeSeries ts : series) {
-            seriesDimensions.add(ts);
-        }
-
+        seriesDimensions = new ArrayList<>(series);
         classLabelIndex = labelIndex; 
         dataChecks();
     }
@@ -96,7 +91,7 @@ public class TimeSeriesInstance implements Iterable<TimeSeries> {
     public TimeSeriesInstance(List<List<Double>> series) {
         // process the input list to produce TimeSeries Objects.
         // this allows us to pad if need be, or if we want to squarify the data etc.
-        seriesDimensions = new ArrayList<TimeSeries>();
+        seriesDimensions = new ArrayList<>();
 
         for (List<Double> ts : series) {
             // convert List<Double> to double[]
@@ -107,7 +102,7 @@ public class TimeSeriesInstance implements Iterable<TimeSeries> {
     }
 
     public TimeSeriesInstance(double[][] data) {
-        seriesDimensions = new ArrayList<TimeSeries>();
+        seriesDimensions = new ArrayList<>();
 
         for(double[] in : data){
             seriesDimensions.add(new TimeSeries(in));
@@ -117,7 +112,7 @@ public class TimeSeriesInstance implements Iterable<TimeSeries> {
 	}
 
     public TimeSeriesInstance(double[][] data, int labelIndex) {
-        seriesDimensions = new ArrayList<TimeSeries>();
+        seriesDimensions = new ArrayList<>();
 
         for(double[] in : data){
             seriesDimensions.add(new TimeSeries(in));

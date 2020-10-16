@@ -17,7 +17,7 @@ public class TimeSeries
     public static double DEFAULT_VALUE = Double.NaN;
 
     // the list of channels / dimensions
-    private final List<Double> series = new ArrayList<>();
+    private List<Double> values = new ArrayList<>();
     // todo iron out how the timestamps stuff is working exactly
     private List<Double> timeStamps = null;
     // todo is this metadata stuff redundant now? Should be able to mirror the setup in TimeSeriesInstance for metadata handling
@@ -34,21 +34,21 @@ public class TimeSeries
         this(new ArrayList<>());
     }
 
-    public TimeSeries(double[] series){
-        this(series, null);
+    public TimeSeries(double[] values){
+        this(values, null);
     }
     
-    public TimeSeries(double[] series, double[] timeStamps) {
-        setSeries(series);
+    public TimeSeries(double[] values, double[] timeStamps) {
+        setValues(values);
         setTimeStamps(timeStamps);
     }
     
-    public TimeSeries(List<Double> series) {
-        this(series, null);
+    public TimeSeries(List<Double> values) {
+        this(values, null);
     }
     
-    public TimeSeries(List<Double> series, List<Double> timeStamps) {
-        setSeries(series);
+    public TimeSeries(List<Double> values, List<Double> timeStamps) {
+        setValues(values);
         setTimeStamps(timeStamps);
     }
     
@@ -114,24 +114,24 @@ public class TimeSeries
         this.timeStamps = timeStamps;
     }
     
-    public void setSeries(double[] series) {
-        setSeries(DoubleStream.of(series).boxed().collect(Collectors.toList()));
+    public void setValues(double[] values) {
+        setValues(DoubleStream.of(values).boxed().collect(Collectors.toList()));
     }
 
     /**
      * Note this stores a ref to the list and DOES NOT COPY! I.e. modifications to the list from the outside will be maintained
-     * @param series
+     * @param newSeries
      */
-    public void setSeries(List<Double> series) {
-        clear();
-        addAll(series);
+    public void setValues(List<Double> newSeries) {
+        this.values = new ArrayList<>();
+        addAll(newSeries);
     }
 
     @Override public void add(final int i, final Double value) {
         // todo handle timestamps when timestamp structure has been ironed out
         // must reassess data for missing values as more data has been added
         computeHasMissing = true;
-        series.add(i, value);
+        values.add(i, value);
         listEventListeners.forEach(listener -> listener.onAdd(i, value));
     }
 
@@ -140,7 +140,7 @@ public class TimeSeries
 //        timeStamps.remove(i);
         // may have removed missing values so must recompute
         computeHasMissing = true;
-        final Double removed = series.remove(i);
+        final Double removed = values.remove(i);
         listEventListeners.forEach(listener -> listener.onRemove(i, removed));
         return removed;
     }
@@ -149,7 +149,7 @@ public class TimeSeries
         // todo setter with timestamp
         // may be setting missing values / unsetting / already have missing values so recompute hasMissing
         computeHasMissing = true;
-        final Double previous = series.set(i, value);
+        final Double previous = values.set(i, value);
         listEventListeners.forEach(listener -> listener.onSet(i, previous, value));
         return previous;
     }
@@ -158,7 +158,7 @@ public class TimeSeries
      * @return int
      */
     public int getSeriesLength(){
-        return series.size();
+        return values.size();
     }
     
     /** 
@@ -167,8 +167,8 @@ public class TimeSeries
      */
     public boolean hasValidValueAt(int i){
         //test whether its out of range, or NaN
-        boolean output = i < series.size() &&
-                         Double.isFinite(series.get(i));
+        boolean output = i < values.size() &&
+                         Double.isFinite(values.get(i));
         return output;
     }
 
@@ -178,7 +178,7 @@ public class TimeSeries
      * @return double
      */
     public Double get(int i){
-        return series.get(i);
+        return values.get(i);
     }
 
     
@@ -196,7 +196,7 @@ public class TimeSeries
      * @return List<Double>
      */
     public List<Double> getSlidingWindow(int start, int end){
-        return series.subList(start, end);
+        return values.subList(start, end);
     }
 
     
@@ -206,14 +206,14 @@ public class TimeSeries
      * @return double[]
      */
     public double[] getSlidingWindowArray(int start, int end){
-        return series.subList(start, end).stream().mapToDouble(Double::doubleValue).toArray();
+        return values.subList(start, end).stream().mapToDouble(Double::doubleValue).toArray();
     }
 
     
     /** 
      * @return List<Double>
      */
-    public List<Double> getSeries(){ return series;}
+    public List<Double> getValues(){ return values;}
     
     /** 
      * @return List<Double>
@@ -240,18 +240,18 @@ public class TimeSeries
         
         StringBuilder sb = new StringBuilder();
 
-        for(int i = 0, seriesSize = series.size(); i < seriesSize - 1; i++) {
-            final double val = series.get(i);
+        for(int i = 0, seriesSize = values.size(); i < seriesSize - 1; i++) {
+            final double val = values.get(i);
             sb.append(val).append(',');
         }
-        sb.append(series.get(series.size() - 1));
+        sb.append(values.get(values.size() - 1));
 
         return sb.toString();
     }
 
 
     public int size() {
-        return series.size();
+        return values.size();
     }
 
     /** 
@@ -259,7 +259,7 @@ public class TimeSeries
      */
 
 	public double[] toArrayPrimitive() {
-		return getSeries().stream().mapToDouble(Double::doubleValue).toArray();
+		return getValues().stream().mapToDouble(Double::doubleValue).toArray();
     }
 
     
@@ -338,7 +338,7 @@ public class TimeSeries
      */
     @Override
     public int hashCode(){
-        return this.series.hashCode();
+        return this.values.hashCode();
     }
 
     @Override public boolean equals(final Object o) {
@@ -349,7 +349,7 @@ public class TimeSeries
             return false;
         }
         final TimeSeries series1 = (TimeSeries) o;
-        return series.equals(series1.series);
+        return values.equals(series1.values);
     }
 
                     /** 

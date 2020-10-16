@@ -1,10 +1,8 @@
 package tsml.data_containers.utilities;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 import tsml.data_containers.TimeSeries;
 
@@ -28,7 +26,7 @@ public class TimeSeriesSummaryStatistics {
     }
 
     public TimeSeriesSummaryStatistics(TimeSeries data) {
-        this(data.getSeries());
+        this(data.getValues());
     }
 
     public TimeSeriesSummaryStatistics(List<Double> data) {
@@ -86,7 +84,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double sum(TimeSeries ts){
-        return sum(ts.getSeries());
+        return sum(ts.getValues());
     }
 
     
@@ -117,7 +115,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double sumSq(TimeSeries ts){
-        return sumSq(ts.getSeries());
+        return sumSq(ts.getValues());
     }
 
     
@@ -154,7 +152,7 @@ public class TimeSeriesSummaryStatistics {
      * @return int
      */
     public static int argmax(TimeSeries ts){
-        return argmax(ts.getSeries());
+        return argmax(ts.getValues());
     }
 
     
@@ -181,7 +179,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double max(TimeSeries ts){
-        return max(ts.getSeries());
+        return max(ts.getValues());
     }
 
     
@@ -218,7 +216,7 @@ public class TimeSeriesSummaryStatistics {
      * @return int
      */
     public static int argmin(TimeSeries ts){
-        return argmin(ts.getSeries());
+        return argmin(ts.getValues());
     }
 
     
@@ -245,7 +243,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double min(TimeSeries ts){
-        return min(ts.getSeries());
+        return min(ts.getValues());
     }
 
     
@@ -275,7 +273,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double mean(TimeSeries ts){
-        return mean(ts.getSeries());
+        return mean(ts.getValues());
     }
 
     
@@ -308,7 +306,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double variance(TimeSeries ts, double mean){
-        return variance(ts.getSeries(), mean);
+        return variance(ts.getValues(), mean);
     }
 
     
@@ -346,7 +344,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double kurtosis(TimeSeries ts, double mean, double std){
-        return kurtosis(ts.getSeries(), mean, std);
+        return kurtosis(ts.getValues(), mean, std);
     }
 
     
@@ -383,7 +381,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double skew(TimeSeries ts, double mean, double std){
-        return skew(ts.getSeries(), mean, std);
+        return skew(ts.getValues(), mean, std);
     }
 
     
@@ -434,7 +432,7 @@ public class TimeSeriesSummaryStatistics {
      * @return double
      */
     public static double slope(TimeSeries ts, double sum, double sumSq, double std){
-        return slope(ts.getSeries(), sum, sumSq, std);
+        return slope(ts.getValues(), sum, sumSq, std);
     }
 
 

@@ -29,7 +29,7 @@ public class TimeSeriesStatsTools {
      * @return TimeSeriesSummaryStatistics
      */
     public static TimeSeriesSummaryStatistics getTimeSeriesSummaryStats(TimeSeries ts){
-        TimeSeriesSummaryStatistics stats = ts.getSeries().stream().collect(new TimeSeriesCollector());
+        TimeSeriesSummaryStatistics stats = ts.getValues().stream().collect(new TimeSeriesCollector());
         return stats;
     }   
 
@@ -43,11 +43,11 @@ public class TimeSeriesStatsTools {
 
         System.out.println("Actual " + actual + " expected " + expected);
 
-        TimeSeriesSummaryStatistics stats1 = new TimeSeriesSummaryStatistics(ts.getSeries());
+        TimeSeriesSummaryStatistics stats1 = new TimeSeriesSummaryStatistics(ts.getValues());
 
         TimeSeriesSummaryStatistics stats2 = new TimeSeriesSummaryStatistics(ts);
 
-        TimeSeriesSummaryStatistics stats3 = ts.getSeries().stream().collect(new TimeSeriesCollector());
+        TimeSeriesSummaryStatistics stats3 = ts.getValues().stream().collect(new TimeSeriesCollector());
 
         TimeSeriesSummaryStatistics stats = TimeSeriesStatsTools.getTimeSeriesSummaryStats(ts);
         System.out.println(stats.getMean());

@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.io.*;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 
 import tsml.data_containers.TimeSeries;
 import tsml.data_containers.TimeSeriesInstance;
@@ -73,7 +70,7 @@ public class TSWriter {
         for(TimeSeriesInstance inst : data){
             for(TimeSeries ts : inst){
                 
-                for(Double d : ts.getSeries())
+                for(Double d : ts.getValues())
                     sb.append(df.format(d.doubleValue())).append(",");
                 sb.replace(sb.length()-1,sb.length(),":"); //we use colon to separate dimensions, overwriter the last comma.
             }

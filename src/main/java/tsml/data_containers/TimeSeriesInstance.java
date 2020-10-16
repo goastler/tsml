@@ -56,7 +56,26 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
      * @return boolean
      */
     public boolean isEqualLength(){
-        return getMinLength() == getMaxLength();
+        if(computeIsEqualLength) {
+            // if there's no dimensions then all dimensions are equal length
+            if(dimensions.isEmpty()) {
+                isEqualLength = false;
+            } else {
+                // otherwise there's at least one dimension
+                final int length = dimensions.get(0).getSeriesLength();
+                // compare to other dimensions
+                isEqualLength = true; // assume condition is true
+                for(int i = 1; i < dimensions.size() && isEqualLength; i++) {
+                    final int otherLength = dimensions.get(i).getSeriesLength();
+                    if(otherLength != length) {
+                        // fail the condition if lengths not equal
+                        isEqualLength = false;
+                    }
+                }
+            }
+            computeIsEqualLength = false;
+        }
+        return isEqualLength;
     }
 
     /** 
@@ -255,7 +274,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
      * @return List<Double>
      */
     public List<Double> getSingleHSliceList(int dim){
-        return dimensions.get(dim).getSeries();
+        return dimensions.get(dim).getValues();
     }
 
     
@@ -284,7 +303,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
     public List<List<Double>> getHSliceList(List<Integer> dimensionsToKeep){
         List<List<Double>> out = new ArrayList<>(dimensionsToKeep.size());
         for(Integer dim : dimensionsToKeep)
-            out.add(dimensions.get(dim).getSeries());
+            out.add(dimensions.get(dim).getValues());
 
         return out;
     }

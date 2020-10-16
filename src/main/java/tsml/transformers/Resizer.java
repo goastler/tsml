@@ -193,7 +193,7 @@ public class Resizer implements TrainableTransformer {
         int i=0;
         for(TimeSeries ts : inst){
             int diff = resizeLength - ts.getSeriesLength(); 
-            double[] data = ts.toArray();
+            double[] data = ts.toArrayPrimitive();
 
             // just need to copy data across, if we're the same or longer. truncate the
             // first values.

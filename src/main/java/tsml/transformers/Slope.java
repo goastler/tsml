@@ -77,7 +77,7 @@ public class Slope implements Transformer {
         int i =0;
         for(TimeSeries ts : inst){
             checkParameters(ts.getSeriesLength());
-            out[i++] = getGradients(ts.toArray());
+            out[i++] = getGradients(ts.toArrayPrimitive());
         }
 
         return new TimeSeriesInstance(out, inst.getLabelIndex());

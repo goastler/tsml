@@ -260,7 +260,7 @@ public class SAX implements Transformer, TechnicalInformationHandler {
         double[][] out = new double[inst.getNumDimensions()][];
         int i =0;
         for(TimeSeries ts : inst){
-            double[] o = ts.toArray();
+            double[] o = ts.toArrayPrimitive();
             convertSequence(o);
             out[i++] = o;
         }

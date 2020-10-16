@@ -117,7 +117,7 @@ public class Spectrogram implements Transformer {
     public TimeSeriesInstance transform(TimeSeriesInstance inst) {
         List<TimeSeries> out = new ArrayList<>();
         for (TimeSeries ts : inst) {
-            double[] signal = ts.toArray();
+            double[] signal = ts.toArrayPrimitive();
             double [][] spectrogram = spectrogram(signal, windowLength, overlap, nfft);
 
             for(double[] spec : spectrogram){

@@ -144,7 +144,7 @@ public class PACF implements Transformer {
         double[][] out = new double[inst.getNumDimensions()][];
         int i =0;
         for(TimeSeries ts : inst){
-            out[i++] = convertInstance(ts.toArray());
+            out[i++] = convertInstance(ts.toArrayPrimitive());
         }
 
         return new TimeSeriesInstance(out, inst.getLabelIndex());

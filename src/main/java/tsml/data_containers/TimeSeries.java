@@ -1,10 +1,8 @@
 package tsml.data_containers;
 
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 /**
  * Class to store a time series. The series can have different indices (time stamps) and store missing values (NaN).
@@ -14,17 +12,67 @@ import java.util.stream.Stream;
 
  * */
 public class TimeSeries
-        extends AbstractList<Double> 
-                {
+        extends AbstractList<Double> implements ListEventNotifier<Double> {
 
     public static double DEFAULT_VALUE = Double.NaN;
 
     // the list of channels / dimensions
-    private List<Double> series;
-    private List<Double> indices;
+    private final List<Double> series = new ArrayList<>();
+    // todo iron out how the timestamps stuff is working exactly
+    private List<Double> timeStamps = null;
     // todo is this metadata stuff redundant now? Should be able to mirror the setup in TimeSeriesInstance for metadata handling
     private MetaData md;
+    // the list of event listeners. These are fired on modification of this time series to manage metadata changes in containing classes (e.g. TimeSeriesInstance)
+    // initialising to hold a single listener, as this is the norm for TimeSeriesInstance
+    private final Set<ListEventListener<Double>> listEventListeners = new HashSet<>(1, 1f);
+    private boolean hasMissing;
+    private boolean computeHasMissing = true;
+    private boolean isEquallySpaced;
+    private boolean computeIsEquallySpaced = true;
+    
+    public boolean isEquallySpaced() {
+        if(computeIsEquallySpaced) {
+            if(size() <= 2) {
+                isEquallySpaced = true;
+            } else {
+                Double previous = get(0);
+                Double current = get(1);
+                final double spacing = current - previous;
+                isEquallySpaced = true;
+                for(int i = 1; i < size() && isEquallySpaced; i++) {
+                    previous = current;
+                    current = get(i);
+                    isEquallySpaced = current - previous == spacing;
+                }
+            }
+            computeIsEquallySpaced = false;
+        }
+        return isEquallySpaced;
+    }
+    
+    public boolean hasTimeStamps() {
+        return timeStamps != null;
+    }
+    
+    public boolean hasMissing() {
+        if(computeHasMissing) {
+            hasMissing = contains(DEFAULT_VALUE);
+            computeHasMissing = false;
+        }
+        return hasMissing;
+    }
+    
+    public boolean addListEventListener(ListEventListener<Double> listener) {
+        return listEventListeners.add(listener);
+    }
+    
+    public boolean removeListEventListener(ListEventListener<Double> listener) {
+        return listEventListeners.remove(listener);
+    }
 
+    public TimeSeries() {
+        this(new ArrayList<>());
+    }
 
     public TimeSeries(double[] series){
         setSeries(series);
@@ -35,43 +83,67 @@ public class TimeSeries
     }
     
     /** 
-     * @param ind
+     * @param timeStamps
      */
-    public void setIndices(double[] indices){
-        setIndices(DoubleStream.of(indices).boxed().collect(Collectors.toList()));
+    public void setTimeStamps(double[] timeStamps){
+        setTimeStamps(DoubleStream.of(timeStamps).boxed().collect(Collectors.toList()));
     }
     
-    public void setIndices(List<Double> indices) {
-        this.indices = indices;
+    public void setTimeStamps(List<Double> timeStamps) {
+        // check the time stamps are in ascending order
+        // the first timestamp should never be smaller as there's no timestamp before the first, so init previous to neg inf
+        Double previous = Double.NEGATIVE_INFINITY;
+        for(Double timeStamp : timeStamps) {
+            // check the time stamp is no smaller than the previous
+            if(previous > timeStamp) {
+                throw new IllegalArgumentException("time stamps not in ascending order: " + previous + " > " + timeStamp);
+            }
+            // current time stamp becomes the previous
+            previous = timeStamp;
+        }
+        this.timeStamps = timeStamps;
     }
     
     public void setSeries(double[] series) {
         setSeries(DoubleStream.of(series).boxed().collect(Collectors.toList()));
     }
-    
+
+    /**
+     * Note this stores a ref to the list and DOES NOT COPY! I.e. modifications to the list from the outside will be maintained
+     * @param series
+     */
     public void setSeries(List<Double> series) {
-        this.series = series;
+        clear();
+        addAll(series);
     }
 
     @Override public void add(final int i, final Double value) {
-        if(indices != null) {
-            // todo handle indices
-        }
+        // todo handle timestamps when timestamp structure has been ironed out
+        // must reassess data for missing values as more data has been added
+        computeHasMissing = true;
         series.add(i, value);
+        listEventListeners.forEach(listener -> listener.onAdd(i, value));
     }
 
     @Override public Double remove(final int i) {
-        if(indices != null) {
-            indices.remove(i);
-        }
-        return series.remove(i);
+        // todo handle timestamps when timestamp structure has been ironed out
+//        timeStamps.remove(i);
+        // may have removed missing values so must recompute
+        computeHasMissing = true;
+        final Double removed = series.remove(i);
+        listEventListeners.forEach(listener -> listener.onRemove(i, removed));
+        return removed;
     }
 
     @Override public Double set(final int i, final Double value) {
-        return series.set(i, value);
+        // may be setting missing values / unsetting / already have missing values so recompute hasMissing
+        computeHasMissing = true;
+        final Double previous = series.set(i, value);
+        listEventListeners.forEach(listener -> listener.onSet(i, previous, value));
+        return previous;
     }
 
-                    /** 
+    /** 
      * @return int
      */
     public int getSeriesLength(){
@@ -135,7 +207,7 @@ public class TimeSeries
     /** 
      * @return List<Double>
      */
-    public List<Double> getIndices(){ return indices;}
+    public List<Double> getTimeStamps(){ return timeStamps;}
 
     private class MetaData{
         String name;
@@ -273,7 +345,33 @@ public class TimeSeries
      * @param args
      */
     public static void main(String[] args) {
-        TimeSeries ts = new TimeSeries(new double[]{1,2,3,4}) ;
+        TimeSeries ts = new TimeSeries(new double[]{1,2,3,4});
+        ts.addListEventListener(new ListEventListener<Double>() {
+            @Override public void onAdd(final int i, final Double newItem) {
+                super.onAdd(i, newItem);
+                System.out.println("after add " + newItem);
+            }
+
+            @Override public void onMutate() {
+                super.onMutate();
+                System.out.println("mutation");
+            }
+
+            @Override public void onRemove(final int i, final Double removedItem) {
+                super.onRemove(i, removedItem);
+                System.out.println("removed " + removedItem);
+            }
+
+            @Override public void onSet(final int i, final Double previousItem, Double nextItem) {
+                super.onSet(i, previousItem, nextItem);
+                System.out.println("set " + i + "th element from " + previousItem + " to " + nextItem);
+            }
+        });
+        ts.add(5d);
+        ts.add(0, 6d);
+        ts.set(3, -7d);
+        ts.remove(2);
+        System.out.println(ts);
     }
 
 

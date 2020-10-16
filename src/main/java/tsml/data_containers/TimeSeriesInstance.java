@@ -35,6 +35,60 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
     private boolean computeHasTimeStamps = true;
     private boolean isEquallySpaced;
     private boolean computeIsEquallySpaced = true;
+    private boolean isEqualLength;
+    private boolean computeIsEqualLength = true;
+
+    public List<String> getClassLabels() {
+        return classLabels;
+    }
+
+    public void setClassLabels(final List<String> classLabels) {
+        this.classLabels = classLabels;
+    }
+    
+    public String getClassLabel() {
+        if(classLabelIndex < 0) {
+            // return no class label if class index invalid
+            return null;
+        }
+        return classLabels.get(classLabelIndex);
+    }
+
+    /**
+     * Set the class label index
+     * @param classLabelIndex
+     */
+    public void setClassLabelIndex(final int classLabelIndex) {
+        if(classLabelIndex < 0) {
+            throw new IllegalArgumentException("class label index should be >=0, received: " + classLabelIndex);
+        }
+        this.classLabelIndex = classLabelIndex;
+    }
+
+    /**
+     * Set the regression target value
+     * @param targetValue
+     */
+    public void setTargetValue(final double targetValue) {
+        this.targetValue = targetValue;
+    }
+    
+    public void setDimensionsRaw(List<List<Double>> dimensions) {
+        setDimensions(stream().map(TimeSeries::new).collect(Collectors.toList()));
+    }
+    
+    public void setDimensionsRaw(double[][] dimensions) {
+        setDimensions(Arrays.stream(dimensions).map(TimeSeries::new).collect(Collectors.toList()));
+    }
+    
+    public void setDimensions(List<TimeSeries> newDimensions) {
+        this.dimensions = new ArrayList<>(); // clear the dimensions
+        addAll(newDimensions); // add all the new dimensions
+    }
+    
+    public void setDimensions(TimeSeries[] dimensions) {
+        setDimensions(Arrays.asList(dimensions));
+    }
     
     public boolean isEquallySpaced() {
         if(computeIsEquallySpaced) {

@@ -16,12 +16,14 @@ import java.util.stream.IntStream;
 public class TimeSeriesInstance extends AbstractList<TimeSeries> implements ListEventNotifier<TimeSeries> {
     
     /* Data */
-    private List<TimeSeries> dimensions = new ArrayList<>(); // todo ctors copy
+    private List<TimeSeries> dimensions = new ArrayList<>();
     // store a listener per dimension in this instance
     private final List<ListEventListener<Double>> dimensionsListeners = new ArrayList<>();
+    // todo what's the diff between these?
     private final List<ListEventListener<TimeSeries>> listEventListeners = new ArrayList<>();
-    private int classLabelIndex;
-    private double targetValue;
+    private int classLabelIndex = -1; // init to invalid index
+    private double targetValue = Double.POSITIVE_INFINITY;
+    private List<String> classLabels;
     /* Meta Information */
     private boolean hasMissing;
     private boolean computeHasMissing = true;

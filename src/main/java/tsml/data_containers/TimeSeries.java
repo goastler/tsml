@@ -30,6 +30,28 @@ public class TimeSeries
     private boolean isEquallySpaced;
     private boolean computeIsEquallySpaced = true;
     
+    public TimeSeries() {
+        this(new ArrayList<>());
+    }
+
+    public TimeSeries(double[] series){
+        this(series, null);
+    }
+    
+    public TimeSeries(double[] series, double[] timeStamps) {
+        setSeries(series);
+        setTimeStamps(timeStamps);
+    }
+    
+    public TimeSeries(List<Double> series) {
+        this(series, null);
+    }
+    
+    public TimeSeries(List<Double> series, List<Double> timeStamps) {
+        setSeries(series);
+        setTimeStamps(timeStamps);
+    }
+    
     public boolean isEquallySpaced() {
         if(computeIsEquallySpaced) {
             if(size() <= 2) {
@@ -49,11 +71,11 @@ public class TimeSeries
         }
         return isEquallySpaced;
     }
-    
+
     public boolean hasTimeStamps() {
         return timeStamps != null;
     }
-    
+
     public boolean hasMissing() {
         if(computeHasMissing) {
             hasMissing = contains(DEFAULT_VALUE);
@@ -61,25 +83,13 @@ public class TimeSeries
         }
         return hasMissing;
     }
-    
+
     public boolean addListEventListener(ListEventListener<Double> listener) {
         return listEventListeners.add(listener);
     }
-    
+
     public boolean removeListEventListener(ListEventListener<Double> listener) {
         return listEventListeners.remove(listener);
-    }
-
-    public TimeSeries() {
-        this(new ArrayList<>());
-    }
-
-    public TimeSeries(double[] series){
-        setSeries(series);
-    }
-    
-    public TimeSeries(List<Double> series) {
-        setSeries(series);
     }
     
     /** 
@@ -136,6 +146,7 @@ public class TimeSeries
     }
 
     @Override public Double set(final int i, final Double value) {
+        // todo setter with timestamp
         // may be setting missing values / unsetting / already have missing values so recompute hasMissing
         computeHasMissing = true;
         final Double previous = series.set(i, value);

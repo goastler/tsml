@@ -441,7 +441,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
         int i=0;
         for(TimeSeriesInstance inst : instances){
             // if the index isn't always valid, populate with NaN values.
-            out[i++] = inst.getSingleHSliceArray(dim);
+            out[i++] = inst.getHSliceArray(dim);
         }
         return out;
     }

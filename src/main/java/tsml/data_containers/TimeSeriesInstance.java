@@ -241,7 +241,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
      * @param index
      * @return List<Double>
      */
-    public List<Double> getSingleVSliceList(int index){
+    public List<Double> getVSliceList(int index){
         List<Double> out = new ArrayList<>(getNumDimensions());
         for(TimeSeries ts : dimensions){
             out.add(ts.get(index));
@@ -255,7 +255,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
      * @param index
      * @return double[]
      */
-    public double[] getSingleVSliceArray(int index){
+    public double[] getVSliceArray(int index){
         double[] out = new double[getNumDimensions()];
         int i=0;
         for(TimeSeries ts : dimensions){
@@ -319,7 +319,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
      * @param dim
      * @return List<Double>
      */
-    public List<Double> getSingleHSliceList(int dim){
+    public List<Double> getHSliceList(int dim){
         return dimensions.get(dim).getValues();
     }
 
@@ -328,7 +328,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
      * @param dim
      * @return double[]
      */
-    public double[] getSingleHSliceArray(int dim){
+    public double[] getHSliceArray(int dim){
         return dimensions.get(dim).toArrayPrimitive();
     }
 

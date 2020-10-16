@@ -173,56 +173,48 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements List
     }
 
     /* End Meta Information */
-
-    // this ctor can be made way more sophisticated.
-    public TimeSeriesInstance(List<List<Double>> series, Double value) {
-        this(series);
-
-        //could be an index, or it could be regression target
-        classLabelIndex = value.intValue();
-        targetValue = value;
+    
+    public TimeSeriesInstance() {
+        
+    }
+    
+    public static TimeSeriesInstance fromLabelledRawData(List<List<Double>> dimensions, int classLabelIndex, List<String> classLabels) {
+        TimeSeriesInstance inst = new TimeSeriesInstance();
+        inst.setDimensionsRaw(dimensions);
+        inst.setClassLabels(classLabels);
+        inst.setClassLabelIndex(classLabelIndex);
+        return inst;
     }
 
-    // this ctor can be made way more sophisticated.
-    public TimeSeriesInstance(List<List<Double>> series, int label) {
-        this(series);
-
-        classLabelIndex = label;
+    public static TimeSeriesInstance fromLabelledRawData(double[][] dimensions, int classLabelIndex, List<String> classLabels) {
+        TimeSeriesInstance inst = new TimeSeriesInstance();
+        inst.setDimensionsRaw(dimensions);
+        inst.setClassLabels(classLabels);
+        inst.setClassLabelIndex(classLabelIndex);
+        return inst;
     }
-
-    //do the ctor this way round to avoid erasure problems :(
-    public TimeSeriesInstance(int labelIndex, List<TimeSeries> series) {
-        dimensions = new ArrayList<>(series);
-        classLabelIndex = labelIndex; 
+    
+    public static TimeSeriesInstance fromLabelledDimensions(List<TimeSeries> dimensions, List<String> classLabels, int classLabelIndex) {
+        TimeSeriesInstance inst = new TimeSeriesInstance();
+        inst.setDimensions(dimensions);
+        inst.setClassLabelIndex(classLabelIndex);
+        inst.setClassLabels(classLabels);
+        return inst;
     }
-
-    public TimeSeriesInstance(List<List<Double>> series) {
-        // process the input list to produce TimeSeries Objects.
-        // this allows us to pad if need be, or if we want to squarify the data etc.
-        dimensions = new ArrayList<>();
-
-        for (List<Double> ts : series) {
-            // convert List<Double> to double[]
-            dimensions.add(new TimeSeries(ts.stream().mapToDouble(Double::doubleValue).toArray()));
-        }
+    
+    public TimeSeriesInstance(List<List<Double>> series, double targetValue) {
+        setDimensionsRaw(series);
+        setTargetValue(targetValue);
     }
-
-    public TimeSeriesInstance(double[][] data) {
-        dimensions = new ArrayList<>();
-
-        for(double[] in : data){
-            dimensions.add(new TimeSeries(in));
-        }
-	}
-
-    public TimeSeriesInstance(double[][] data, int labelIndex) {
-        dimensions = new ArrayList<>();
-
-        for(double[] in : data){
-            dimensions.add(new TimeSeries(in));
-        }
-
-        classLabelIndex = labelIndex;
+    
+    public TimeSeriesInstance(double[][] series, double targetValue) {
+        setDimensionsRaw(series);
+        setTargetValue(targetValue);
+    }
+    
+    public TimeSeriesInstance(TimeSeries[] dimensions, double targetValue) {
+        setDimensions(dimensions);
+        setTargetValue(targetValue);
     }
 
     @Override public int size() {

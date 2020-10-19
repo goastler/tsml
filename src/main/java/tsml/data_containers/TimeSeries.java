@@ -36,6 +36,7 @@ public class TimeSeries
     private boolean hasMissing;
     private boolean computeHasMissing = true;
     private boolean isEquallySpaced;
+    private double timeStampSpacing;
     private boolean computeIsEquallySpaced = true;
 
     /**
@@ -82,25 +83,41 @@ public class TimeSeries
     }
 
     /**
+     * If equally spaced, get the time stamp spacing.
+     * @return
+     */
+    public double getTimeStampSpacing() {
+        if(!hasTimeStamps()) {
+            throw new IllegalStateException("time stamps not set");
+        }
+        int size = size();
+        if(size == 1) {
+            // assume sizing is 1 if only 1 value in the time series
+            throw new IllegalStateException("single time stamp, cannot compute spacing");
+        }
+        return get(1) - get(0);
+    }
+    
+    /**
      * Are the time stamps equally spaced?
      * @return
      */
     public boolean isEquallySpaced() {
         if(computeIsEquallySpaced) {
-            // less than or equal to 2 time stamps are guaranteed to be equally spaced
-            if(size() <= 2) {
+            if(size() <= 1) {
                 isEquallySpaced = true;
+                timeStampSpacing = -1;
             } else {
                 // otherwise work out the spacing
                 Double previous = get(0);
                 Double current = get(1);
-                final double spacing = current - previous;
+                timeStampSpacing = current - previous;
                 // check if the spacing of each are equal
                 isEquallySpaced = true;
                 for(int i = 1; i < size() && isEquallySpaced; i++) {
                     previous = current;
                     current = get(i);
-                    isEquallySpaced = current - previous == spacing;
+                    isEquallySpaced = current - previous == timeStampSpacing;
                 }
             }
             computeIsEquallySpaced = false;
@@ -178,7 +195,11 @@ public class TimeSeries
             timeStamps = null;
         }
     }
-    
+
+    /**
+     * Set values from raw data
+     * @param values
+     */
     public void setValues(double[] values) {
         setValues(DoubleStream.of(values).boxed().collect(Collectors.toList()));
     }
@@ -371,7 +392,10 @@ public class TimeSeries
         return sb.toString();
     }
 
-
+    /**
+     * Get the length of the time series
+     * @return
+     */
     public int size() {
         return values.size();
     }
@@ -466,7 +490,7 @@ public class TimeSeries
         return values.equals(series1.values);
     }
 
-                    /** 
+    /** 
      * @param args
      */
     public static void main(String[] args) {

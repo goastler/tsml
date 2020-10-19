@@ -13,7 +13,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
     // a listener per instance in this object. These listen for changes in their corresponding instance, then use these changes to recompute metadata / stats
     private List<TimeSeriesInstanceListener> instanceListeners = new ArrayList<>();
     // mapping for class labels. so ["apple","orange"] => [0,1]
-    private LabelEncoder labelEncoder;
+    private List<String> classLabels;
     /* Meta Information */
     private List<Integer> classCounts;
     private boolean computeClassCounts = true;
@@ -35,15 +35,27 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
     private boolean computeMaxNumDimensions = true;
     private int minNumDimensions;
     private boolean computeMinNumDimensions = true;
-    
+
+    /**
+     * Get the number of classes available for classification.
+     * @return
+     */
     public int getNumClasses() {
         return getClassesList().size();
     }
-    
+
+    /**
+     * Compute the distribution of classes.
+     * @return
+     */
     public int[] getClassCountsArray() {
         return getClassCountsList().stream().mapToInt(i -> i).toArray();
     }
     
+    /**
+     * Compute the distribution of classes.
+     * @return
+     */
     public List<Integer> getClassCountsList() {
         if(computeClassCounts) {
             classCounts = new ArrayList<>(getNumClasses());
@@ -55,6 +67,10 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
         return classCounts;
     }
 
+    /**
+     * Get the minimum number of dimensions in any instance in this object.
+     * @return
+     */
     public int getMinNumDimensions() {
         if(computeMinNumDimensions) {
             minNumDimensions = stream().mapToInt(TimeSeriesInstance::getNumDimensions).min().orElse(-1);
@@ -63,6 +79,12 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
         return minNumDimensions;
     }
 
+    /**
+     * Build a listener to listen to changes in the given time series instance.
+     * @param i
+     * @param instance
+     * @return
+     */
     private TimeSeriesInstanceListener buildListener(int i, TimeSeriesInstance instance) {
         return new TimeSeriesInstanceListener() {
 
@@ -87,35 +109,53 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
             }
         };
     }
-    
+
+    /**
+     * Set all metadata to be computed.
+     */
     private void setComputeMetadata() {
         setComputeMetadataInstances();
         setComputeMetadataTimeStamps();
         setComputeMetadataValues();
         setComputeMetadataDimensions();
     }
-    
+
+    /**
+     * Set time stamp related metadata to be computed
+     */
     private void setComputeMetadataTimeStamps() {
         computeHasTimeStamps = true;
         computeIsEquallySpaced = true;
     }
-    
+
+    /**
+     * Set dimension related metadata to be computed
+     */
     private void setComputeMetadataDimensions() {
         computeIsMultivariate = true;
         computeMaxNumDimensions = true;
         computeMinNumDimensions = true;
     }
-    
+
+    /**
+     * Set value related metadata to be computed
+     */
     private void setComputeMetadataValues() {
         computeHasMissing = true;
         computeMaxLength = true;
         computeMinLength = true;
     }
-    
+
+    /**
+     * Set instance related metadata to be computed
+     */
     private void setComputeMetadataInstances() {
         computeClassCounts = true;
     }
-    
+
+    /**
+     * Clear all of the instances in this object.
+     */
     @Override public void clear() {
         super.clear();
         // remove the listeners
@@ -131,17 +171,28 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
         setComputeMetadata();
         // don't clear the class labels, these are managed through the setClassLabels function (and should persist beyond clear operations)
     }
-    
-    private void checkLabelEncoderMatch(TimeSeriesInstance instance) {
-        // must check that instance's class labels is the same as our set of class labels
-        // the problem here is the instance being added may have a different set of class labels than this object does. Therefore, must check the equality. If they're not equal then reject the instance as recomputing the class label indices is a) inefficient and b) may lead to unexpected behaviour, as a class may more indices and the user may not realise. Use the explicit setClassLabels method to do this.
-        if(!labelEncoder.equals(instance.getLabelEncoder())) {
+
+    /**
+     * Check class labels match. Must check that instance's class labels is the same as our set of class labels
+     *         The problem here is the instance being added may have a different set of class labels than this 
+     *         object does. Therefore, must check the equality. If they're not equal then reject the instance as 
+     *         recomputing the class label indices is a) inefficient and b) may lead to unexpected behaviour, as a 
+     *         class may more indices and the user may not realise. Use the explicit setClassLabels method to do this.
+     * @param instance
+     */
+    private void checkClassLabelsMatch(TimeSeriesInstance instance) {
+        if(!classLabels.equals(instance.getClassLabels())) {
             throw new IllegalArgumentException("classes do not match");
         }
     }
-    
+
+    /**
+     * Add an instance to this object.
+     * @param i
+     * @param instance
+     */
     @Override public void add(final int i, final TimeSeriesInstance instance) {
-        checkLabelEncoderMatch(instance);
+        checkClassLabelsMatch(instance);
         // build a listener to listen for changes to the new instance
         TimeSeriesInstanceListener listener = buildListener(i, instance);
         instanceListeners.add(i, listener);
@@ -153,6 +204,11 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
         setComputeMetadata();
     }
 
+    /**
+     * Remove an instance from this object.
+     * @param i
+     * @return
+     */
     @Override public TimeSeriesInstance remove(final int i) {
         // remove the instance
         TimeSeriesInstance removed = instances.remove(i);
@@ -165,8 +221,14 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
         return removed;
     }
 
+    /**
+     * Replace an instance in this object.
+     * @param i
+     * @param instance
+     * @return
+     */
     @Override public TimeSeriesInstance set(final int i, final TimeSeriesInstance instance) {
-        checkLabelEncoderMatch(instance);
+        checkClassLabelsMatch(instance);
         // get the current listener
         TimeSeriesInstanceListener currentListener = instanceListeners.get(i);
         // get the current instance
@@ -185,8 +247,12 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
         return previous;
     }
 
+    /**
+     * Find the number of instances in this object.
+     * @return
+     */
     @Override public int size() {
-        return numInstances();
+        return getNumInstances();
     }
 
     /** 
@@ -224,7 +290,11 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      */
     public boolean isEquallySpaced() {
         if(computeIsEquallySpaced) {
-            isEquallySpaced = stream().allMatch(TimeSeriesInstance::isEquallySpaced);
+            if(isEmpty()) {
+                isEquallySpaced = false;
+            } else {
+                isEquallySpaced = stream().allMatch(TimeSeriesInstance::isEquallySpaced) && stream().allMatch(inst -> inst.getTimeStampSpacing() == get(0).getTimeStampSpacing());
+            }
             computeIsEquallySpaced = false;
         }
         return isEquallySpaced;
@@ -542,7 +612,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      * @return int[]
      */
     public int[] getClassLabelIndexes(){
-        int[] out = new int[numInstances()];
+        int[] out = new int[getNumInstances()];
         int index=0;
         for(TimeSeriesInstance inst : instances){
             out[index++] = inst.getClassLabelIndex();
@@ -557,7 +627,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      */
     //assumes equal numbers of channels
     public double[] getVSliceArray(int index){
-        double[] out = new double[numInstances() * instances.get(0).getNumDimensions()];
+        double[] out = new double[getNumInstances() * instances.get(0).getNumDimensions()];
         int i=0;
         for(TimeSeriesInstance inst : instances){
             for(TimeSeries ts : inst)
@@ -583,7 +653,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      * @return List<List<List<Double>>>
      */
     public List<List<List<Double>>> getVSliceList(List<Integer> indexesToKeep){
-        List<List<List<Double>>> out = new ArrayList<>(numInstances());
+        List<List<List<Double>>> out = new ArrayList<>(getNumInstances());
         for(TimeSeriesInstance inst : instances){
             out.add(inst.getVSliceList(indexesToKeep));
         }
@@ -606,7 +676,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      * @return double[][][]
      */
     public double[][][] getVSliceArray(List<Integer> indexesToKeep){
-        double[][][] out = new double[numInstances()][][];
+        double[][][] out = new double[getNumInstances()][][];
         int i=0;
         for(TimeSeriesInstance inst : instances){
             out[i++] = inst.getVSliceArray(indexesToKeep);
@@ -622,7 +692,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      */
     //assumes equal numbers of channels
     public double[][] getHSliceArray(int dim){
-        double[][] out = new double[numInstances()][];
+        double[][] out = new double[getNumInstances()][];
         int i=0;
         for(TimeSeriesInstance inst : instances){
             // if the index isn't always valid, populate with NaN values.
@@ -646,7 +716,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      * @return List<List<List<Double>>>
      */
     public List<List<List<Double>>> getHSliceList(List<Integer> indexesToKeep){
-        List<List<List<Double>>> out = new ArrayList<>(numInstances());
+        List<List<List<Double>>> out = new ArrayList<>(getNumInstances());
         for(TimeSeriesInstance inst : instances){
             out.add(inst.getHSliceList(indexesToKeep));
         }
@@ -669,7 +739,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
      * @return double[][][]
      */
     public double[][][] getHSliceArray(List<Integer> indexesToKeep){
-        double[][][] out = new double[numInstances()][][];
+        double[][][] out = new double[getNumInstances()][][];
         int i=0;
         for(TimeSeriesInstance inst : instances){
             out[i++] = inst.getHSliceArray(indexesToKeep);
@@ -690,7 +760,7 @@ public class TimeSeriesInstances extends AbstractList<TimeSeriesInstance> {
     /** 
      * @return int
      */
-    public int numInstances() {
+    public int getNumInstances() {
 		return instances.size();
     }
 

@@ -25,8 +25,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
     private final Set<TimeSeriesInstanceListener> listeners = new HashSet<>(1, 1);
     private int classLabelIndex = -1; // init to invalid index
     private double regressionTarget = Double.NaN; // init to invalid target
-    private LabelEncoder labelEncoder;
-    private String classLabel;
+    private List<String> classLabels;
     /* Meta Information */
     private boolean hasMissing;
     private boolean computeHasMissing = true;
@@ -40,95 +39,154 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
     private boolean computeIsEquallySpaced = true;
     private boolean isEqualLength;
     private boolean computeIsEqualLength = true;
-    
+
+    /**
+     * Is regression enabled?
+     * @return
+     */
     public boolean hasRegressionTarget() {
         return !Double.isNaN(regressionTarget);
     }
 
-    public LabelEncoder getLabelEncoder() {
-        return labelEncoder;
-    }
-
-    public void setLabelEncoder(final LabelEncoder labelEncoder) {
-        if(hasClassLabel() && !labelEncoder.getClasses().contains(classLabel)) {
-            throw new IllegalArgumentException("label encoder does not contain class label " + classLabel);
+    /**
+     * Get the number of classes
+     * @return
+     */
+    public int getNumClasses() {
+        if(!hasClassLabel()) {
+            // zero classes available if not configured for classification
+            return 0;
         }
-        this.labelEncoder = labelEncoder;
-        // unset regression target
-        regressionTarget = Double.NaN;
-        listeners.forEach(TimeSeriesInstanceListener::onClassChange);
+        return getClassLabels().size();
     }
 
-    public List<String> getClasses() {
-        return labelEncoder.getClasses();
-    }
-    
-    public void setClasses(List<String> classes) {
-        setLabelEncoder(new LabelEncoder(classes));
+    /**
+     * Get the classes available for classification.
+     * @return
+     */
+    public List<String> getClassLabels() {
+        return classLabels;
     }
 
+    /**
+     * Set the classes available for classification.
+     * @param classLabels
+     */
+    public void setClassLabels(List<String> classLabels) {
+        this.classLabels = classLabels;
+        setClassLabelIndex(classLabelIndex);
+    }
+
+    /**
+     * Get the class label.
+     * @return null if not classified
+     */
     public String getClassLabel() {
-        return classLabel;
+        if(classLabelIndex < 0) {
+            return null;
+        }
+        return classLabels.get(classLabelIndex);
     }
 
+    /**
+     * Set the class label directly.
+     * @param classLabel
+     */
     public void setClassLabel(final String classLabel) {
-        this.classLabel = classLabel;
         if(classLabel == null) {
             classLabelIndex = -1;
         } else {
-            classLabelIndex = labelEncoder.transform(classLabel);
+            setClassLabelIndex(classLabels.indexOf(classLabel));
+            if(classLabelIndex < 0) {
+                throw new IllegalArgumentException("cannot find " + classLabel + " in " + classLabels);
+            }
         }
         // unset regression target
         regressionTarget = Double.NaN;
         listeners.forEach(TimeSeriesInstanceListener::onClassChange);
     }
 
+    /**
+     * Get the index of the class label in the class labels.
+     * @return
+     */
     public int getClassLabelIndex() {
         return classLabelIndex;
     }
 
+    /**
+     * Set the class label by index in class labels.
+     * @param classLabelIndex
+     */
     public void setClassLabelIndex(final int classLabelIndex) {
+        if(classLabelIndex >= classLabels.size() || classLabelIndex < 0) {
+            throw new IllegalArgumentException("class label index " + classLabelIndex + " not in range of class labels " + classLabels);
+        }
         this.classLabelIndex = classLabelIndex;
-        classLabel = labelEncoder.inverseTransform(classLabelIndex);
         // unset regression target
         removeRegressionTarget();
         listeners.forEach(TimeSeriesInstanceListener::onClassChange);
     }
-    
-    public void setClassLabelIndex(int index, LabelEncoder labelEncoder) {
-        removeClassLabel();
-        setLabelEncoder(labelEncoder);
-        setClassLabelIndex(index);
-    }
-    
-    public void setClassLabelIndex(int index, String[] classes) {
-        setClassLabelIndex(index, Arrays.asList(classes));
-    }
-    
-    public void setClassLabelIndex(int index, List<String> classes) {
-        setClassLabelIndex(index, new LabelEncoder(classes));
-    }
-    
-    public void setClassLabel(String label, LabelEncoder labelEncoder) {
-        setClassLabelIndex(labelEncoder.transform(label), labelEncoder);
-    }
-    
-    public void setClassLabel(String label, String[] classes) {
-        setClassLabel(label, Arrays.asList(classes));
-    }
-    
-    public void setClassLabel(String label, List<String> classes) {
-        setClassLabel(label, new LabelEncoder(classes));
-    }
-    
-    public boolean hasClassLabel() {
-        return classLabel != null;
+
+    /**
+     * Set class label from index in class labels.
+     * @param index
+     * @param classLabels
+     */
+    public void setClassLabelIndex(int index, String[] classLabels) {
+        setClassLabelIndex(index, Arrays.asList(classLabels));
     }
 
+    /**
+     * Set class label from index in class labels.
+     * @param index
+     * @param classLabels
+     */
+    public void setClassLabelIndex(int index, List<String> classLabels) {
+        // remove the current class label
+        removeClassLabel();
+        // set the class labels
+        setClassLabels(classLabels);
+        // set the class index
+        setClassLabelIndex(index);
+    }
+
+    /**
+     * Set class label directly.
+     * @param label
+     * @param classLabels
+     */
+    public void setClassLabel(String label, String[] classLabels) {
+        setClassLabel(label, Arrays.asList(classLabels));
+    }
+
+    /**
+     * Set class label directly.
+     * @param label
+     * @param classLabels
+     */
+    public void setClassLabel(String label, List<String> classLabels) {
+        setClassLabelIndex(classLabels.indexOf(label), classLabels);
+    }
+
+    /**
+     * Is there a class label set? I.e. class label set == classified, not set == unclassified
+     * @return
+     */
+    public boolean hasClassLabel() {
+        return getClassLabel() != null;
+    }
+
+    /**
+     * Remove any regression labels
+     */
     public void removeRegressionTarget() {
         setRegressionTarget(Double.NaN);
     }
-    
+
+    /**
+     * Remove any class labels
+     */
     public void removeClassLabel() {
         setClassLabel(null);
     }
@@ -140,38 +198,101 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
     public void setRegressionTarget(final double regressionTarget) {
         this.regressionTarget = regressionTarget;
         // unset classification variables
-        classLabel = null;
         classLabelIndex = -1;
-        labelEncoder = null;
         // alert listeners
         listeners.forEach(TimeSeriesInstanceListener::onClassChange);
     }
 
-    public void setDimensionsRaw(List<? extends List<Double>> dimensions) {
+    /**
+     * Set dimensions from raw data.
+     * @param dimensions
+     */
+    public void setDimensionsFromData(List<? extends List<Double>> dimensions) {
         setDimensions(stream().map(TimeSeries::new).collect(Collectors.toList()));
     }
-    
-    public void setDimensionsRaw(double[][] dimensions) {
+
+    /**
+     * Set dimensions from raw data
+     * @param dimensions
+     */
+    public void setDimensionsFromData(double[][] dimensions) {
         setDimensions(Arrays.stream(dimensions).map(TimeSeries::new).collect(Collectors.toList()));
     }
-    
+
+    /**
+     * Set dimensions from time series.
+     * @param newDimensions
+     */
     public void setDimensions(List<? extends TimeSeries> newDimensions) {
         clear(); // clear out current data
         addAll(newDimensions); // add all the new dimensions
     }
-    
+
+    /**
+     * Set dimensions from time series.
+     * @param dimensions
+     */
     public void setDimensions(TimeSeries[] dimensions) {
         setDimensions(Arrays.asList(dimensions));
     }
+
+    /**
+     * Get the spacing between time stamps if spaced equally.
+     * @return
+     */
+    public double getTimeStampSpacing() {
+        if(!hasTimeStamps()) {
+            throw new IllegalStateException("time stamps not set");
+        }
+        return get(0).getTimeStampSpacing();
+    }
     
+    /**
+     * Are all time stamps equally spaced across every dimension?
+     * @return
+     */
     public boolean isEquallySpaced() {
         if(computeIsEquallySpaced) {
-            isEquallySpaced = stream().allMatch(TimeSeries::isEquallySpaced);
+            if(isEmpty()) {
+                isEquallySpaced = false;
+            } else if(isUnivariate()) {
+                isEquallySpaced = get(0).isEquallySpaced();
+            } else {
+                // default to true
+                isEquallySpaced = true;
+                // get the first dimension
+                TimeSeries dimension = dimensions.get(9);
+                if(dimension.isEquallySpaced() && dimension.size() > 1) {
+                    // get the spacing
+                    double spacing = dimension.getTimeStampSpacing();
+                    // compare spacing to every other dimension
+                    for(int i = 1; i < dimensions.size() && isEquallySpaced; i++) {
+                        final TimeSeries otherDimension = this.get(i);
+                        if(otherDimension.isEquallySpaced() && otherDimension.size() > 1) {
+                            double dimensionSpacing = otherDimension.getTimeStampSpacing();
+                            // check spacings match, fail if not
+                            if(dimensionSpacing != spacing) {
+                                isEquallySpaced = false;
+                            }
+                        } else {
+                            // other dimension is not equally spaced so fail
+                            isEquallySpaced = false;
+                        }
+                    }
+                } else {
+                    // first dimension not equally spaced so fail
+                    isEquallySpaced = false;
+                }
+            }
             computeIsEquallySpaced = false;
         }
         return isEquallySpaced;
     }
-    
+
+    /**
+     * Do all dimensions have time stamps?
+     * @return
+     */
     public boolean hasTimeStamps() {
         if(computeHasTimeStamps) {
             hasTimeStamps = stream().allMatch(TimeSeries::hasTimeStamps);
@@ -228,15 +349,27 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         }
         return maxLength;
     }
-    
+
+    /**
+     * Is this single dimension
+     * @return
+     */
     public boolean isUnivariate() {
         return dimensions.size() == 1;
     }
-    
+
+    /**
+     * Is this multiple dimensions
+     * @return
+     */
     public boolean isMultivariate() {
         return dimensions.size() > 1;
     }
 
+    /**
+     * Do any of the dimensions contain missing values?
+     * @return
+     */
     public boolean hasMissing() {
         if(computeHasMissing) {
             // if any of the series have a NaN value, across all dimensions then this is true.
@@ -247,11 +380,14 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
     }
 
     /* End Meta Information */
-    
+
+    /**
+     * Default empty instance, no dimensions.
+     */
     public TimeSeriesInstance() {
         
     }
-    
+
     // instead of constructors we're using several static methods to produce TimeSeriesInstance objects. These are required as generics cause ctor clashes, i.e TimeSeriesInstance(List<TimeSeries> list) and TimeSeriesInstance(List<List<Double>> list) clash due to runtime erasure.
 
     /**
@@ -272,7 +408,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
      */
     public static TimeSeriesInstance fromData(List<? extends List<Double>> dimensions) {
         TimeSeriesInstance instance = new TimeSeriesInstance();
-        instance.setDimensionsRaw(dimensions);
+        instance.setDimensionsFromData(dimensions);
         return instance;
     }
 
@@ -283,7 +419,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
      */
     public static TimeSeriesInstance fromData(double[][] dimensions) {
         TimeSeriesInstance instance = new TimeSeriesInstance();
-        instance.setDimensionsRaw(dimensions);
+        instance.setDimensionsFromData(dimensions);
         return instance;
     }
 
@@ -308,7 +444,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
      */
     public static TimeSeriesInstance fromRegressedData(List<? extends List<Double>> dimensions, double targetValue) {
         TimeSeriesInstance instance = new TimeSeriesInstance();
-        instance.setDimensionsRaw(dimensions);
+        instance.setDimensionsFromData(dimensions);
         instance.setRegressionTarget(targetValue);
         return instance;
     }
@@ -321,7 +457,7 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
      */
     public static TimeSeriesInstance fromRegressedData(double[][] dimensions, double targetValue) {
         TimeSeriesInstance instance = new TimeSeriesInstance();
-        instance.setDimensionsRaw(dimensions);
+        instance.setDimensionsFromData(dimensions);
         instance.setRegressionTarget(targetValue);
         return instance;
     }
@@ -329,53 +465,77 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
     /**
      * Build instance from time series dimensions with a classification label
      * @param dimensions
-     * @param labelEncoder
+     * @param classLabels
      * @param classLabelIndex
      * @return
      */
-    public static TimeSeriesInstance fromClassifiedTimeSeries(List<? extends TimeSeries> dimensions, LabelEncoder labelEncoder, int classLabelIndex) {
+    public static TimeSeriesInstance fromClassifiedTimeSeries(List<? extends TimeSeries> dimensions, List<String> classLabels, int classLabelIndex) {
         TimeSeriesInstance instance = new TimeSeriesInstance();
         instance.setDimensions(dimensions);
-        instance.setLabelEncoder(labelEncoder);
+        instance.setClassLabels(classLabels);
         instance.setClassLabelIndex(classLabelIndex);
         return instance;
     }
-    public static TimeSeriesInstance fromClassifiedTimeSeries(List<? extends TimeSeries> dimensions, List<String> classes, int classLabelIndex) {
-        return fromClassifiedTimeSeries(dimensions, new LabelEncoder(classes), classLabelIndex);
-    }
-    public static TimeSeriesInstance fromClassifiedTimeSeries(List<? extends TimeSeries> dimensions, List<String> classes, String classLabel) {
-        return fromClassifiedTimeSeries(dimensions, new LabelEncoder(classes), classLabel);
-    }
-    public static TimeSeriesInstance fromClassifiedTimeSeries(List<? extends TimeSeries> dimensions, LabelEncoder labelEncoder, String classLabel) {
-        return fromClassifiedTimeSeries(dimensions, labelEncoder, labelEncoder.transform(classLabel));
+
+    /**
+     * Build instance from time series dimensions with a classification label
+     * @param dimensions
+     * @param classLabels
+     * @param classLabel
+     * @return
+     */
+    public static TimeSeriesInstance fromClassifiedTimeSeries(List<? extends TimeSeries> dimensions, List<String> classLabels, String classLabel) {
+        return fromClassifiedTimeSeries(dimensions, classLabels, classLabel);
     }
 
+    /**
+     * Build instance from raw data with a classification label
+     * @param dimensions
+     * @param classes
+     * @param classLabelIndex
+     * @return
+     */
     public static TimeSeriesInstance fromClassifiedData(List<? extends List<Double>> dimensions, List<String> classes, int classLabelIndex) {
         return fromClassifiedTimeSeries(dimensions.stream().map(TimeSeries::new).collect(Collectors.toList()), classes, classLabelIndex);
     }
-    public static TimeSeriesInstance fromClassifiedData(List<? extends List<Double>> dimensions, LabelEncoder labelEncoder, int classLabelIndex) {
-        return fromClassifiedTimeSeries(dimensions.stream().map(TimeSeries::new).collect(Collectors.toList()), labelEncoder, classLabelIndex);
-    }
+
+    /**
+     * Build instance from raw data with a classification label
+     * @param dimensions
+     * @param classes
+     * @param classLabel
+     * @return
+     */
     public static TimeSeriesInstance fromClassifiedData(List<? extends List<Double>> dimensions, List<String> classes, String classLabel) {
         return fromClassifiedTimeSeries(dimensions.stream().map(TimeSeries::new).collect(Collectors.toList()), classes, classLabel);
     }
-    public static TimeSeriesInstance fromClassifiedData(List<? extends List<Double>> dimensions, LabelEncoder labelEncoder, String classLabel) {
-        return fromClassifiedTimeSeries(dimensions.stream().map(TimeSeries::new).collect(Collectors.toList()), labelEncoder, classLabel);
-    }
 
+    /**
+     * Build instance from raw data with classification label
+     * @param dimensions
+     * @param classes
+     * @param classLabelIndex
+     * @return
+     */
     public static TimeSeriesInstance fromClassifiedData(double[][] dimensions, List<String> classes, int classLabelIndex) {
         return fromClassifiedTimeSeries(Arrays.stream(dimensions).map(TimeSeries::new).collect(Collectors.toList()), classes, classLabelIndex);
     }
-    public static TimeSeriesInstance fromClassifiedData(double[][] dimensions, LabelEncoder labelEncoder, int classLabelIndex) {
-        return fromClassifiedTimeSeries(Arrays.stream(dimensions).map(TimeSeries::new).collect(Collectors.toList()), labelEncoder, classLabelIndex);
-    }
+
+    /**
+     * Build instance from raw data with classification label
+     * @param dimensions
+     * @param classes
+     * @param classLabel
+     * @return
+     */
     public static TimeSeriesInstance fromClassifiedData(double[][] dimensions, List<String> classes, String classLabel) {
         return fromClassifiedTimeSeries(Arrays.stream(dimensions).map(TimeSeries::new).collect(Collectors.toList()), classes, classLabel);
     }
-    public static TimeSeriesInstance fromClassifiedData(double[][] dimensions, LabelEncoder labelEncoder, String classLabel) {
-        return fromClassifiedTimeSeries(Arrays.stream(dimensions).map(TimeSeries::new).collect(Collectors.toList()), labelEncoder, classLabel);
-    }
-    
+
+    /**
+     * Get the number of dimensions in this instance.
+     * @return
+     */
     @Override public int size() {
         return getNumDimensions();
     }
@@ -464,7 +624,6 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         return out;
     }
     
-    
     /** 
      * @param dim
      * @return List<Double>
@@ -502,6 +661,29 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
             out.add(dimensions.get(dim).getValues());
 
         return out;
+    }
+    
+    public TimeSeriesInstance getHSlice(int[] dimensionsToKeep) {
+        return getHSlice(Arrays.stream(dimensionsToKeep).boxed().collect(Collectors.toList()));
+    }
+    
+    public TimeSeriesInstance getHSlice(List<Integer> dimensionsToKeep) {
+        TimeSeriesInstance instance = cloneToEmptyInstance();
+        for(Integer index : dimensionsToKeep) {
+            TimeSeries dimension = get(index);
+            instance.add(dimension);
+        }
+        return instance;
+    }
+    
+    private TimeSeriesInstance cloneToEmptyInstance() {
+        TimeSeriesInstance instance = new TimeSeriesInstance();
+        if(hasClassLabel()) {
+            instance.setClassLabelIndex(classLabelIndex, classLabels);
+        } else if(hasRegressionTarget()) {
+            instance.setRegressionTarget(regressionTarget);
+        }
+        return instance;
     }
 
     
@@ -584,24 +766,36 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         return this.dimensions.get(i);
 	}
 
+    /**
+     * Set to compute all value related metadata
+     */
     private void setComputeMetadataForValues() {
         computeIsEqualLength = true;
         computeMinLength = true;
         computeMaxLength = true;
         computeHasMissing = true;
     }
-    
+
+    /**
+     * Set to compute all time stamp related metadata
+     */
     private void setComputeMetadataForTimeStamps() {
         computeIsEqualLength = true;
         computeHasTimeStamps = true;
         computeIsEquallySpaced = true;
     }
-    
+
+    /**
+     * Set to compute all metadata
+     */
     private void setComputeMetadata() {
         setComputeMetadataForTimeStamps();
         setComputeMetadataForValues();
     }
-	
+
+    /**
+     * Clear all data in this instance
+     */
     @Override public void clear() {
         super.clear();
         // remove the listeners
@@ -618,7 +812,12 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         // alert listeners that changes have happened. Must do this after setting compute metadata above as these may rely on the meta data being recomputed
         listeners.forEach(TimeSeriesInstanceListener::onDimensionChange);
     }
-	
+
+    /**
+     * Remove a dimension by index.
+     * @param i
+     * @return
+     */
     @Override public TimeSeries remove(final int i) {
         // remove the dimension
         final TimeSeries removed = dimensions.remove(i);
@@ -633,6 +832,11 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         return removed;
     }
 
+    /**
+     * Add a dimension at a specific index.
+     * @param i
+     * @param dimension
+     */
     @Override public void add(final int i, final TimeSeries dimension) {
         // add the dimension
         dimensions.add(i, dimension);
@@ -648,6 +852,12 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         listeners.forEach(TimeSeriesInstanceListener::onDimensionChange);
     }
 
+    /**
+     * Set a dimension to another dimension at a specific index.
+     * @param i
+     * @param dimension
+     * @return
+     */
     @Override public TimeSeries set(final int i, final TimeSeries dimension) {
         // get the current listener
         TimeSeriesListener currentListener = dimensionsListeners.get(i);
@@ -667,7 +877,13 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         listeners.forEach(TimeSeriesInstanceListener::onDimensionChange);
         return dimensions.set(i, dimension);
     }
-    
+
+    /**
+     * Build a dimension listener. This takes a dimension and the index of that dimension in this instance. The listener alerts us to when data in the dimension has changed and metadata in this instance may need to be recomputed.
+     * @param dimensionIndex
+     * @param dimension
+     * @return
+     */
     private TimeSeriesListener buildDimensionListener(int dimensionIndex, TimeSeries dimension) {
         // use the dimension index and dimension in the listener if so required
         return new TimeSeriesListener() {
@@ -691,10 +907,20 @@ public class TimeSeriesInstance extends AbstractList<TimeSeries> implements Noti
         };
     }
 
+    /**
+     * Add a listener to listen for changes in this instance.
+     * @param listener
+     * @return
+     */
     @Override public boolean addListener(final TimeSeriesInstanceListener listener) {
         return listeners.add(listener);
     }
 
+    /**
+     * Remove a listener to stop receiving notification of changes in this instance.
+     * @param listener
+     * @return
+     */
     @Override public boolean removeListener(final TimeSeriesInstanceListener listener) {
         return listeners.remove(listener);
     }

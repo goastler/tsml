@@ -170,7 +170,7 @@ public class ColumnNormalizer implements TrainableTransformer {
 
 	/* Wont normalise the class value */
 	public double[][][] intervalNorm(TimeSeriesInstances r) {
-		double[][][] out = new double[r.numInstances()][][];
+		double[][][] out = new double[r.getNumInstances()][][];
 		int i =0;
 		for (TimeSeriesInstance inst : r) {			
 			out[i++] = ArrayUtilities.transposeMatrix(intervalNorm(inst));
@@ -189,10 +189,10 @@ public class ColumnNormalizer implements TrainableTransformer {
 	}
 
 	public double[][][] standardNorm(TimeSeriesInstances r) {
-		double[][][] out = new double[r.numInstances()][][];
+		double[][][] out = new double[r.getNumInstances()][][];
 
 		int index=0;
-		for(int i=0; i<r.numInstances(); i++){
+		for(int i=0; i<r.getNumInstances(); i++){
 			out[index] =  new double[r.getMaxLength()][];
 			for (int j = 0; j < r.getMaxLength(); j++) {
 				out[index][j] = TimeSeriesSummaryStatistics.standardNorm(r.get(i).getVSliceArray(j), mean[j], stdev[j]);

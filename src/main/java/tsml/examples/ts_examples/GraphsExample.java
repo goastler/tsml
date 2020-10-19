@@ -56,7 +56,7 @@ public class GraphsExample {
 
         System.out.println(count);
 
-        double acc = (double) count / (double) data2.numInstances();
+        double acc = (double) count / (double) data2.getNumInstances();
         System.out.println(acc);
     }
 
@@ -119,7 +119,7 @@ public class GraphsExample {
 
         System.out.println(count);
 
-        double acc = (double) count / (double) data2.numInstances();
+        double acc = (double) count / (double) data2.getNumInstances();
         System.out.println(acc);
     }
 
@@ -184,7 +184,7 @@ public class GraphsExample {
 
         System.out.println(count);
 
-        double acc = (double) count / (double) data2.numInstances();
+        double acc = (double) count / (double) data2.getNumInstances();
         System.out.println(acc);
     }
 
@@ -250,7 +250,7 @@ public class GraphsExample {
 
         System.out.println(count);
 
-        double acc = (double) count / (double) data2.numInstances();
+        double acc = (double) count / (double) data2.getNumInstances();
         System.out.println(acc);
     }
 
@@ -317,7 +317,7 @@ public class GraphsExample {
 
         System.out.println(count);
 
-        double acc = (double) count / (double) data2.numInstances();
+        double acc = (double) count / (double) data2.getNumInstances();
         System.out.println(acc);
     }
 
@@ -390,7 +390,7 @@ public class GraphsExample {
 
         System.out.println(count);
 
-        double acc = (double) count / (double) data2.numInstances();
+        double acc = (double) count / (double) data2.getNumInstances();
         System.out.println(acc);
     }
 

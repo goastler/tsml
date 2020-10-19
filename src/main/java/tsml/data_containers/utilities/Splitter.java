@@ -90,7 +90,7 @@ public class Splitter{
      //could merge dimension slices like. {0,1}, {2}, {3,4}
     public static TimeSeriesInstances mergeTimeSeriesInstances(List<TimeSeriesInstances> inst_dims){
         TimeSeriesInstances out = new TimeSeriesInstances();
-        for ( int i=0; i<inst_dims.get(0).numInstances(); i++ ){
+        for ( int i=0; i<inst_dims.get(0).getNumInstances(); i++ ){
             List<TimeSeriesInstance> single_instance = new ArrayList<>();
             //each TSInstances is a HSlice of the data.
             for(TimeSeriesInstances dim : inst_dims){

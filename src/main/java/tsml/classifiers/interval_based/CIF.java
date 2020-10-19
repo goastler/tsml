@@ -328,7 +328,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
         //initialise variables
         else {
             seriesLength = data.getMaxLength();
-            numInstances = data.numInstances();
+            numInstances = data.getNumInstances();
             numDimensions = data.getMaxNumDimensions();
 
             if (numIntervalsFinder == null){
@@ -771,10 +771,10 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
     private void estimateOwnPerformance(TimeSeriesInstances data) throws Exception {
         if(bagging){
             // Use bag data, counts normalised to probabilities
-            double[] preds=new double[data.numInstances()];
-            double[] actuals=new double[data.numInstances()];
-            long[] predTimes=new long[data.numInstances()];//Dummy variable, need something
-            for(int j=0;j<data.numInstances();j++){
+            double[] preds=new double[data.getNumInstances()];
+            double[] actuals=new double[data.getNumInstances()];
+            long[] predTimes=new long[data.getNumInstances()];//Dummy variable, need something
+            for(int j=0;j<data.getNumInstances();j++){
                 long predTime = System.nanoTime();
                 for(int k=0;k<trainDistributions[j].length;k++)
                     trainDistributions[j][k] /= oobCounts[j];
@@ -796,7 +796,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
             /** Defaults to 10 or numInstances, whichever is smaller.
              * Interface TrainAccuracyEstimate
              * Could this be handled better? */
-            int numFolds=Math.min(data.numInstances(), 10);
+            int numFolds=Math.min(data.getNumInstances(), 10);
             CrossValidationEvaluator cv = new CrossValidationEvaluator();
             if (seedClassifier)
                 cv.setSeed(seed*5);

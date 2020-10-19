@@ -727,15 +727,15 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
      * @return subsampled data
      */
     private TimeSeriesInstances subsampleData(TimeSeriesInstances series, IndividualTDE indiv) {
-        int newSize = (int) (series.numInstances() * trainProportion);
+        int newSize = (int) (series.getNumInstances() * trainProportion);
         ArrayList<TimeSeriesInstance> data = new ArrayList<>();
 
-        ArrayList<Integer> indices = new ArrayList<>(series.numInstances());
-        for (int n = 0; n < series.numInstances(); n++){
+        ArrayList<Integer> indices = new ArrayList<>(series.getNumInstances());
+        for (int n = 0; n < series.getNumInstances(); n++){
             indices.add(n);
         }
 
-        ArrayList<Integer> subsampleIndices = new ArrayList<>(series.numInstances());
+        ArrayList<Integer> subsampleIndices = new ArrayList<>(series.getNumInstances());
         while (subsampleIndices.size() < newSize){
             subsampleIndices.add(indices.remove(rand.nextInt(indices.size())));
         }
@@ -792,12 +792,12 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
         }
 
         int correct = 0;
-        int requiredCorrect = (int) (lowestAcc * series.numInstances());
+        int requiredCorrect = (int) (lowestAcc * series.getNumInstances());
 
         if (multiThread) {
-            ArrayList<Future<Double>> futures = new ArrayList<>(series.numInstances());
+            ArrayList<Future<Double>> futures = new ArrayList<>(series.getNumInstances());
 
-            for (int i = 0; i < series.numInstances(); ++i) {
+            for (int i = 0; i < series.getNumInstances(); ++i) {
                 if (series.isMultivariate())
                     futures.add(ex.submit(((MultivariateIndividualTDE)indiv).new TrainNearestNeighbourThread(i)));
                 else
@@ -816,8 +816,8 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                 }
             }
         } else {
-            for (int i = 0; i < series.numInstances(); ++i) {
-                if (correct + series.numInstances() - i < requiredCorrect) {
+            for (int i = 0; i < series.getNumInstances(); ++i) {
+                if (correct + series.getNumInstances() - i < requiredCorrect) {
                     return -1;
                 }
 
@@ -832,7 +832,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
             }
         }
 
-        return (double) correct / (double) series.numInstances();
+        return (double) correct / (double) series.getNumInstances();
     }
 
     /**
@@ -845,7 +845,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
      */
     private void findEnsembleTrainEstimate() throws Exception {
         if (estimator == EstimatorMethod.OOB && trainProportion < 1){
-            for (int i = 0; i < train.numInstances(); ++i) {
+            for (int i = 0; i < train.getNumInstances(); ++i) {
                 double[] probs = new double[train.getNumClasses()];
                 double sum = 0;
 
@@ -874,8 +874,8 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
             trainResults.setErrorEstimateMethod("OOB");
         }
         else {
-            double[][] trainDistributions = new double[train.numInstances()][train.getNumClasses()];
-            int[] idxSubsampleCount = new int[train.numInstances()];
+            double[][] trainDistributions = new double[train.getNumInstances()][train.getNumClasses()];
+            int[] idxSubsampleCount = new int[train.getNumInstances()];
 
             if (estimator == EstimatorMethod.NONE) {
                 for (int i = 0; i < classifiers.size(); i++) {
@@ -904,7 +904,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                 trainResults.setErrorEstimateMethod("LOOCV");
             }
 
-            for (int i = 0; i < train.numInstances(); ++i) {
+            for (int i = 0; i < train.getNumInstances(); ++i) {
                 double[] probs;
 
                 if (idxSubsampleCount[i] > 0 && estimator == EstimatorMethod.NONE) {

@@ -97,7 +97,7 @@ public class ClassifierTools {
     
     public static double accuracy(TimeSeriesInstances test, TSClassifier c){
 		double a=0;
-		int size=test.numInstances();
+		int size=test.getNumInstances();
 		TimeSeriesInstance d;
 		double predictedClass,trueClass;
 		for(int i=0;i<size;i++)

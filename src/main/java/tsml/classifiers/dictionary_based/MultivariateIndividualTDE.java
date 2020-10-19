@@ -435,8 +435,8 @@ public class MultivariateIndividualTDE extends IndividualTDE {
                                                  //AND test data
         }
 
-        SFAwords = new BitWord[data.getMaxNumDimensions()][data.numInstances()][];
-        bags = new ArrayList<>(data.numInstances());
+        SFAwords = new BitWord[data.getMaxNumDimensions()][data.getNumInstances()][];
+        bags = new ArrayList<>(data.getNumInstances());
         rand = new Random(seed);
         seriesLength = data.getMaxLength();
 
@@ -444,16 +444,16 @@ public class MultivariateIndividualTDE extends IndividualTDE {
             if (numThreads == 1) numThreads = Runtime.getRuntime().availableProcessors();
             if (ex == null) ex = Executors.newFixedThreadPool(numThreads);
 
-            ArrayList<Future<Bag>> futures = new ArrayList<>(data.numInstances());
+            ArrayList<Future<Bag>> futures = new ArrayList<>(data.getNumInstances());
 
-            for (int inst = 0; inst < data.numInstances(); ++inst)
+            for (int inst = 0; inst < data.getNumInstances(); ++inst)
                 futures.add(ex.submit(new TransformThread(inst, data.get(inst))));
 
             for (Future<Bag> f: futures)
                 bags.add(f.get());
         }
         else {
-            for (int inst = 0; inst < data.numInstances(); ++inst) {
+            for (int inst = 0; inst < data.getNumInstances(); ++inst) {
                 Bag bag = new Bag(data.get(inst).getClassLabelIndex());
                 for (int d = 0; d < data.getMaxNumDimensions(); d++) {
                     SFAwords[d][inst] = createSFAwords(split[inst][d], d);

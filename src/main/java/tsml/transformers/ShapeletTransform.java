@@ -401,7 +401,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
      */
     private TimeSeriesInstances orderDataSet(TimeSeriesInstances data) {
 
-        int dataSize = data.numInstances();
+        int dataSize = data.getNumInstances();
         // shapelets discovery has not yet been carried out, so this must be training
         // data
         dataSourceIDs = new int[dataSize];
@@ -428,7 +428,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
         Shapelet s;
         // for each data, get distance to each shapelet and create new instance
         int size = shapelets.size();
-        int dataSize = data.numInstances();
+        int dataSize = data.getNumInstances();
 
         //1 dimensional 
         double[][][] out = new double[dataSize][1][size];
@@ -537,7 +537,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
         long usedTime = 0;
         // This can be used to reduce the number of series searched. Better done with
         // Aaron's Condenser
-        int numSeriesToUse = data.numInstances();
+        int numSeriesToUse = data.getNumInstances();
         // temp store of shapelets for each time series
         ArrayList<Shapelet> seriesShapelets;
         // construct a map for our K-shapelets lists, on for each classVal.
@@ -784,10 +784,10 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
         }
         long startTime = System.nanoTime();
         long usedTime = 0;
-        int numSeriesToUse = data.numInstances(); // This can be used to reduce the number of series in favour of more
+        int numSeriesToUse = data.getNumInstances(); // This can be used to reduce the number of series in favour of more
 
         ArrayList<Shapelet> seriesShapelets; // temp store of all shapelets for each time series
-        int dataSize = data.numInstances();
+        int dataSize = data.getNumInstances();
         // for all possible time series.
         long prevEarlyAbandons = 0;
         int passes = 0;
@@ -1606,7 +1606,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
             positionsByClass.put((double) i, new ArrayList<>(frequency));
         }
 
-        int dataSize = data.numInstances();
+        int dataSize = data.getNumInstances();
         // Split data according to their class memebership
         for (int i = 0; i < dataSize; i++) {
             TimeSeriesInstance inst = data.get(i);

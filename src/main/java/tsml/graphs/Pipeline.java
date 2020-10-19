@@ -363,8 +363,8 @@ public class Pipeline extends EnhancedAbstractClassifier {
 
         @Override
         TimeSeriesInstances predict(TimeSeriesInstances data) {
-            double[][][] output = new double[data.numInstances()][][];
-            for(int j=0; j< data.numInstances(); j++){
+            double[][][] output = new double[data.getNumInstances()][][];
+            for(int j=0; j< data.getNumInstances(); j++){
                 double[][] output1 = new double[1][data.get(j).getMaxLength()];
                 for(int i=0; i<data.get(j).getMaxLength(); i++){
                     output1[0][i] = TimeSeriesSummaryStatistics.mean(data.get(j).getVSliceArray(i));

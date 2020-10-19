@@ -855,24 +855,24 @@ public class IndividualTDE extends EnhancedAbstractClassifier implements Compara
         else breakpoints = MCB(split, 0); //breakpoints to be used for making sfa words for train
                                              //AND test data
 
-        SFAwords = new BitWord[data.numInstances()][];
-        bags = new ArrayList<>(data.numInstances());
+        SFAwords = new BitWord[data.getNumInstances()][];
+        bags = new ArrayList<>(data.getNumInstances());
         seriesLength = data.getMaxLength();
 
         if (multiThread){
             if (numThreads == 1) numThreads = Runtime.getRuntime().availableProcessors();
             if (ex == null) ex = Executors.newFixedThreadPool(numThreads);
 
-            ArrayList<Future<Bag>> futures = new ArrayList<>(data.numInstances());
+            ArrayList<Future<Bag>> futures = new ArrayList<>(data.getNumInstances());
 
-            for (int inst = 0; inst < data.numInstances(); ++inst)
+            for (int inst = 0; inst < data.getNumInstances(); ++inst)
                 futures.add(ex.submit(new TransformThread(inst, data.get(inst))));
 
             for (Future<Bag> f: futures)
                 bags.add(f.get());
         }
         else {
-            for (int inst = 0; inst < data.numInstances(); ++inst) {
+            for (int inst = 0; inst < data.getNumInstances(); ++inst) {
                 SFAwords[inst] = createSFAwords(data.get(inst).toValueArray()[0]);
                 Bag bag = createSPBagFromWords(wordLength, SFAwords[inst]);
                 bag.setClassVal(data.get(inst).getClassLabelIndex());

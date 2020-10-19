@@ -24,7 +24,7 @@ public interface TSClassifier{
     }
 
     public default double[][] distributionForInstances(TimeSeriesInstances data) throws Exception {
-        double[][] out = new double[data.numInstances()][];
+        double[][] out = new double[data.getNumInstances()][];
 
         Instances data_inst = Converter.toArff(data);
         int i=0;
@@ -35,7 +35,7 @@ public interface TSClassifier{
     }
 
     public default double[] classifyInstances(TimeSeriesInstances data) throws Exception {
-        double[] out = new double[data.numInstances()];
+        double[] out = new double[data.getNumInstances()];
         Instances data_inst = Converter.toArff(data);
         int i=0;
         for(Instance inst : data_inst)

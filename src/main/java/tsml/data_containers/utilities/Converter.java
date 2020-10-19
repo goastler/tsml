@@ -109,9 +109,9 @@ public class Converter {
             attributes.add(new Attribute("ClassLabel", Arrays.stream(classLabels).collect(Collectors.toList())));
             
             //create output data set.
-            Instances output = new Instances("Converted", attributes, data.numInstances());
+            Instances output = new Instances("Converted", attributes, data.getNumInstances());
 
-            for(int i=0; i < data.numInstances(); i++){
+            for(int i=0; i < data.getNumInstances(); i++){
                 //create each row.
                 //only two attribtues, relational and class.
                 output.add(new DenseInstance(2));
@@ -148,11 +148,11 @@ public class Converter {
         attributes.add(new Attribute("ClassLabel", Arrays.stream(classLabels).collect(Collectors.toList())));
 
         //TODO: put the dataset name in the TSInstances
-        Instances output = new Instances("Converted", attributes, data.numInstances());
+        Instances output = new Instances("Converted", attributes, data.getNumInstances());
         output.setClassIndex(output.numAttributes() - 1);
 
         //create the Instance.
-        for (int i = 0; i < data.numInstances(); i++) {
+        for (int i = 0; i < data.getNumInstances(); i++) {
             //we know it's univariate so it has only one dimension.
             double[] vals = new double[numAttributes+1];
             System.arraycopy(values[i][0], 0, vals, 0, values[i][0].length);

@@ -18,7 +18,7 @@ public class TimeSeriesResampler {
             return new TrainTest(train, test);
 
         //create combined list.
-        List<TimeSeriesInstance> all = new ArrayList<>(train.numInstances() + test.numInstances());
+        List<TimeSeriesInstance> all = new ArrayList<>(train.getNumInstances() + test.getNumInstances());
         all.addAll(train);
         all.addAll(test);
 

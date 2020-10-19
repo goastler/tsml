@@ -12,19 +12,25 @@ import java.util.stream.DoubleStream;
 
  * */
 public class TimeSeries
-        extends AbstractList<Double> implements ListEventNotifier<Double> {
+        extends AbstractList<Double> implements Notifier<TimeSeriesListener> {
 
     public static double DEFAULT_VALUE = Double.NaN;
 
+    // todo is this metadata stuff redundant now? Should be able to mirror the setup in TimeSeriesInstance for metadata handling
+    private MetaData md;
+    private class MetaData{
+        String name;
+        Date startDate;
+        double increment;  //Base unit to be ....... 1 day?
+
+    }
     // the list of channels / dimensions
     private List<Double> values = new ArrayList<>();
     // todo iron out how the timestamps stuff is working exactly
     private List<Double> timeStamps = null;
-    // todo is this metadata stuff redundant now? Should be able to mirror the setup in TimeSeriesInstance for metadata handling
-    private MetaData md;
     // the list of event listeners. These are fired on modification of this time series to manage metadata changes in containing classes (e.g. TimeSeriesInstance)
     // initialising to hold a single listener, as this is the norm for TimeSeriesInstance
-    private final Set<ListEventListener<Double>> listEventListeners = new HashSet<>(1, 1f);
+    private final Set<TimeSeriesListener> listeners = new HashSet<>(1, 1f);
     private boolean hasMissing;
     private boolean computeHasMissing = true;
     private boolean isEquallySpaced;
@@ -84,34 +90,39 @@ public class TimeSeries
         return hasMissing;
     }
 
-    public boolean addListEventListener(ListEventListener<Double> listener) {
-        return listEventListeners.add(listener);
+    public boolean addListener(TimeSeriesListener listener) {
+        return listeners.add(listener);
     }
 
-    public boolean removeListEventListener(ListEventListener<Double> listener) {
-        return listEventListeners.remove(listener);
+    public boolean removeListener(TimeSeriesListener listener) {
+        return listeners.remove(listener);
     }
     
     /** 
      * @param timeStamps
      */
     public void setTimeStamps(double[] timeStamps){
-        setTimeStamps(DoubleStream.of(timeStamps).boxed().collect(Collectors.toList()));
+        if(timeStamps != null) {
+            setTimeStamps(DoubleStream.of(timeStamps).boxed().collect(Collectors.toList()));
+        }
     }
     
     public void setTimeStamps(List<Double> timeStamps) {
-        // check the time stamps are in ascending order
-        // the first timestamp should never be smaller as there's no timestamp before the first, so init previous to neg inf
-        Double previous = Double.NEGATIVE_INFINITY;
-        for(Double timeStamp : timeStamps) {
-            // check the time stamp is no smaller than the previous
-            if(previous > timeStamp) {
-                throw new IllegalArgumentException("time stamps not in ascending order: " + previous + " > " + timeStamp);
+        if(timeStamps != null) {
+            // check the time stamps are in ascending order
+            // the first timestamp should never be smaller as there's no timestamp before the first, so init previous to neg inf
+            Double previous = Double.NEGATIVE_INFINITY;
+            for(Double timeStamp : timeStamps) {
+                // check the time stamp is no smaller than the previous
+                if(previous > timeStamp) {
+                    throw new IllegalArgumentException("time stamps not in ascending order: " + previous + " > " + timeStamp);
+                }
+                // current time stamp becomes the previous
+                previous = timeStamp;
             }
-            // current time stamp becomes the previous
-            previous = timeStamp;
+            this.timeStamps = timeStamps;
+            listeners.forEach(TimeSeriesListener::onValueChange);
         }
-        this.timeStamps = timeStamps;
     }
     
     public void setValues(double[] values) {
@@ -123,8 +134,21 @@ public class TimeSeries
      * @param newSeries
      */
     public void setValues(List<Double> newSeries) {
-        this.values = new ArrayList<>();
+        clear();
         addAll(newSeries);
+    }
+
+    @Override public void clear() {
+        super.clear();
+        // clear the values
+        this.values = new ArrayList<>();
+        // remove the timestamps
+        this.timeStamps = null;
+        // need to compute metadata
+        setComputeMetadataValues();
+        // alert listeners that changes have happened. Must do this after setting compute metadata above as these may rely on the meta data being recomputed
+        listeners.forEach(TimeSeriesListener::onValueChange);
+        listeners.forEach(TimeSeriesListener::onTimeStampChange);
     }
 
     @Override public void add(final int i, final Double value) {
@@ -132,7 +156,10 @@ public class TimeSeries
         // must reassess data for missing values as more data has been added
         computeHasMissing = true;
         values.add(i, value);
-        listEventListeners.forEach(listener -> listener.onAdd(i, value));
+        // recompute metadata
+        setComputeMetadataValues();
+        // alert listeners that changes have happened. Must do this after setting compute metadata above as these may rely on the meta data being recomputed
+        listeners.forEach(TimeSeriesListener::onValueChange);
     }
 
     @Override public Double remove(final int i) {
@@ -141,7 +168,10 @@ public class TimeSeries
         // may have removed missing values so must recompute
         computeHasMissing = true;
         final Double removed = values.remove(i);
-        listEventListeners.forEach(listener -> listener.onRemove(i, removed));
+        // recompute the metadata
+        setComputeMetadataValues();
+        // alert listeners that changes have happened. Must do this after setting compute metadata above as these may rely on the meta data being recomputed
+        listeners.forEach(TimeSeriesListener::onValueChange);
         return removed;
     }
 
@@ -150,8 +180,24 @@ public class TimeSeries
         // may be setting missing values / unsetting / already have missing values so recompute hasMissing
         computeHasMissing = true;
         final Double previous = values.set(i, value);
-        listEventListeners.forEach(listener -> listener.onSet(i, previous, value));
+        // recompute metadata
+        setComputeMetadataValues();
+        // alert listeners that changes have happened. Must do this after setting compute metadata above as these may rely on the meta data being recomputed
+        listeners.forEach(TimeSeriesListener::onValueChange);
         return previous;
+    }
+    
+    private void setComputeMetadata() {
+        setComputeMetadataTimeStamps();
+        setComputeMetadataValues();
+    }
+    
+    private void setComputeMetadataValues() {
+        computeHasMissing = true;
+    }
+    
+    private void setComputeMetadataTimeStamps() {
+        computeIsEquallySpaced = true;
     }
 
     /** 
@@ -219,14 +265,6 @@ public class TimeSeries
      * @return List<Double>
      */
     public List<Double> getTimeStamps(){ return timeStamps;}
-
-    private class MetaData{
-        String name;
-        Date startDate;
-        double increment;  //Base unit to be ....... 1 day?
-
-    }
-
     
     /** 
      * @return String
@@ -349,6 +387,7 @@ public class TimeSeries
             return false;
         }
         final TimeSeries series1 = (TimeSeries) o;
+        
         return values.equals(series1.values);
     }
 
@@ -357,31 +396,27 @@ public class TimeSeries
      */
     public static void main(String[] args) {
         TimeSeries ts = new TimeSeries(new double[]{1,2,3,4});
-        ts.addListEventListener(new ListEventListener<Double>() {
-            @Override public void onAdd(final int i, final Double newItem) {
-                super.onAdd(i, newItem);
-                System.out.println("after add " + newItem);
+        ts.addListener(new TimeSeriesListener() {
+            @Override public void onValueChange() {
+                super.onValueChange();
+                System.out.println("value(s) mutated");
             }
 
-            @Override public void onMutate() {
-                super.onMutate();
-                System.out.println("mutation");
-            }
-
-            @Override public void onRemove(final int i, final Double removedItem) {
-                super.onRemove(i, removedItem);
-                System.out.println("removed " + removedItem);
-            }
-
-            @Override public void onSet(final int i, final Double previousItem, Double nextItem) {
-                super.onSet(i, previousItem, nextItem);
-                System.out.println("set " + i + "th element from " + previousItem + " to " + nextItem);
+            @Override public void onTimeStampChange() {
+                super.onTimeStampChange();
+                System.out.println("timestamp(s) mutated");
             }
         });
+        System.out.println(ts);
         ts.add(5d);
+        System.out.println(ts);
         ts.add(0, 6d);
+        System.out.println(ts);
         ts.set(3, -7d);
+        System.out.println(ts);
         ts.remove(2);
+        System.out.println(ts);
+        ts.setTimeStamps(new double[] {1,2,3,4});
         System.out.println(ts);
     }
 

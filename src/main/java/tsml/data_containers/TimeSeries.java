@@ -454,15 +454,6 @@ public class TimeSeries
         return toListWithIndexes(indexesToKeep).stream().mapToDouble(Double::doubleValue).toArray();
     }
 
-    
-    /** 
-     * @return int
-     */
-    @Override
-    public int hashCode(){
-        return this.values.hashCode();
-    }
-
     @Override public boolean equals(final Object o) {
         if(this == o) {
             return true;

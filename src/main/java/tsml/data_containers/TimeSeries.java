@@ -14,6 +14,7 @@ import java.util.stream.DoubleStream;
 public class TimeSeries
         extends AbstractList<Double> implements Notifier<TimeSeriesListener> {
 
+    // The default value if an entry in the time series is missing, i.e. [1, NaN, 3]
     public static double DEFAULT_VALUE = Double.NaN;
 
     // todo is this metadata stuff redundant now? Should be able to mirror the setup in TimeSeriesInstance for metadata handling
@@ -31,41 +32,70 @@ public class TimeSeries
     // the list of event listeners. These are fired on modification of this time series to manage metadata changes in containing classes (e.g. TimeSeriesInstance)
     // initialising to hold a single listener, as this is the norm for TimeSeriesInstance
     private final Set<TimeSeriesListener> listeners = new HashSet<>(1, 1f);
+    // metadata bits
     private boolean hasMissing;
     private boolean computeHasMissing = true;
     private boolean isEquallySpaced;
     private boolean computeIsEquallySpaced = true;
-    
+
+    /**
+     * Construct a default empty time series
+     */
     public TimeSeries() {
         this(new ArrayList<>());
     }
 
+    /**
+     * Construct a time series populated with values
+     * @param values
+     */
     public TimeSeries(double[] values){
         this(values, null);
     }
-    
+
+    /**
+     * Construct a populated time series
+     * @param values
+     * @param timeStamps
+     */
     public TimeSeries(double[] values, double[] timeStamps) {
         setValues(values);
         setTimeStamps(timeStamps);
     }
-    
+
+    /**
+     * Construct a populated time series
+     * @param values
+     */
     public TimeSeries(List<Double> values) {
         this(values, null);
     }
-    
+
+    /**
+     * Construct a populated time series
+     * @param values
+     * @param timeStamps
+     */
     public TimeSeries(List<Double> values, List<Double> timeStamps) {
         setValues(values);
         setTimeStamps(timeStamps);
     }
-    
+
+    /**
+     * Are the time stamps equally spaced?
+     * @return
+     */
     public boolean isEquallySpaced() {
         if(computeIsEquallySpaced) {
+            // less than or equal to 2 time stamps are guaranteed to be equally spaced
             if(size() <= 2) {
                 isEquallySpaced = true;
             } else {
+                // otherwise work out the spacing
                 Double previous = get(0);
                 Double current = get(1);
                 final double spacing = current - previous;
+                // check if the spacing of each are equal
                 isEquallySpaced = true;
                 for(int i = 1; i < size() && isEquallySpaced; i++) {
                     previous = current;
@@ -78,10 +108,18 @@ public class TimeSeries
         return isEquallySpaced;
     }
 
+    /**
+     * 
+     * @return
+     */
     public boolean hasTimeStamps() {
         return timeStamps != null;
     }
 
+    /**
+     * Are there any missing values?
+     * @return
+     */
     public boolean hasMissing() {
         if(computeHasMissing) {
             hasMissing = contains(DEFAULT_VALUE);
@@ -90,10 +128,20 @@ public class TimeSeries
         return hasMissing;
     }
 
+    /**
+     * Add a listener to get notified about modifications.
+     * @param listener
+     * @return
+     */
     public boolean addListener(TimeSeriesListener listener) {
         return listeners.add(listener);
     }
 
+    /**
+     * Remove a listener to stop getting notified about modifications.
+     * @param listener
+     * @return
+     */
     public boolean removeListener(TimeSeriesListener listener) {
         return listeners.remove(listener);
     }
@@ -102,9 +150,12 @@ public class TimeSeries
      * @param timeStamps
      */
     public void setTimeStamps(double[] timeStamps){
+        List<Double> list = null;
+        // if time stamps are null then don't both converting to list
         if(timeStamps != null) {
-            setTimeStamps(DoubleStream.of(timeStamps).boxed().collect(Collectors.toList()));
+            list = DoubleStream.of(timeStamps).boxed().collect(Collectors.toList());
         }
+        setTimeStamps(list);
     }
     
     public void setTimeStamps(List<Double> timeStamps) {
@@ -122,6 +173,9 @@ public class TimeSeries
             }
             this.timeStamps = timeStamps;
             listeners.forEach(TimeSeriesListener::onValueChange);
+        } else {
+            // disable time stamps
+            timeStamps = null;
         }
     }
     
@@ -130,14 +184,17 @@ public class TimeSeries
     }
 
     /**
-     * Note this stores a ref to the list and DOES NOT COPY! I.e. modifications to the list from the outside will be maintained
-     * @param newSeries
+     * Set the values of this time series to a new list of values.
+     * @param newSeries the values to copy. These are copied out of the list so modifications can be managed.
      */
     public void setValues(List<Double> newSeries) {
         clear();
         addAll(newSeries);
     }
 
+    /**
+     * Clear all values and time stamps
+     */
     @Override public void clear() {
         super.clear();
         // clear the values
@@ -151,6 +208,11 @@ public class TimeSeries
         listeners.forEach(TimeSeriesListener::onTimeStampChange);
     }
 
+    /**
+     * Add a single value to the time series at a given index.
+     * @param i
+     * @param value
+     */
     @Override public void add(final int i, final Double value) {
         // todo handle timestamps when timestamp structure has been ironed out
         // must reassess data for missing values as more data has been added
@@ -162,6 +224,11 @@ public class TimeSeries
         listeners.forEach(TimeSeriesListener::onValueChange);
     }
 
+    /**
+     * Remove a single value from this time series given an index.
+     * @param i
+     * @return
+     */
     @Override public Double remove(final int i) {
         // todo handle timestamps when timestamp structure has been ironed out
 //        timeStamps.remove(i);
@@ -175,6 +242,12 @@ public class TimeSeries
         return removed;
     }
 
+    /**
+     * Set a specific value of the time series to a given value, given an index.
+     * @param i the index at which to replace a value
+     * @param value the new value
+     * @return the previous value
+     */
     @Override public Double set(final int i, final Double value) {
         // todo setter with timestamp
         // may be setting missing values / unsetting / already have missing values so recompute hasMissing
@@ -186,28 +259,39 @@ public class TimeSeries
         listeners.forEach(TimeSeriesListener::onValueChange);
         return previous;
     }
-    
+
+    /**
+     * Set compute all metadata
+     */
     private void setComputeMetadata() {
         setComputeMetadataTimeStamps();
         setComputeMetadataValues();
     }
-    
+
+    /**
+     * Set compute only value related metadata
+     */
     private void setComputeMetadataValues() {
         computeHasMissing = true;
     }
-    
+
+    /**
+     * Set compute only time stamp related metadata
+     */
     private void setComputeMetadataTimeStamps() {
         computeIsEquallySpaced = true;
     }
 
     /** 
+     * 
      * @return int
      */
     public int getSeriesLength(){
         return values.size();
     }
     
-    /** 
+    /**
+     * Test whether a value is valid, i.e. not missing. 
      * @param i
      * @return boolean
      */
@@ -387,7 +471,7 @@ public class TimeSeries
             return false;
         }
         final TimeSeries series1 = (TimeSeries) o;
-        
+        // todo consider time stamps
         return values.equals(series1.values);
     }
 

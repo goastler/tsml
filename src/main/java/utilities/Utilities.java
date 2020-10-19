@@ -33,6 +33,16 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
+    public static <A> HashMap<A, Integer> mapIndices(List<A> list) {
+        HashMap<A, Integer> map = new HashMap<>(list.size());
+        int i = 0;
+        for(A item : list) {
+            map.put(item, i);
+            i++;
+        }
+        return map;
+    }
+    
     public static <A> int sum(Iterator<A> iterator, Function<A, Integer> func) {
         int sum = 0;
         while(iterator.hasNext()) {

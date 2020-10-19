@@ -263,7 +263,7 @@ public class MultivariateIndividualTDE extends IndividualTDE {
      * @return BOSSSpatialPyramidsTransform-ed bag, built using current parameters
      */
     private Bag BOSSSpatialPyramidsTransform(TimeSeriesInstance inst) {
-        Bag bag = new Bag(inst.getLabelIndex());
+        Bag bag = new Bag(inst.getClassLabelIndex());
 
         double[][] split = inst.toValueArray();
 
@@ -421,21 +421,21 @@ public class MultivariateIndividualTDE extends IndividualTDE {
     public void buildClassifier(TimeSeriesInstances data) throws Exception {
         trainResults = new ClassifierResults();
         rand.setSeed(seed);
-        numClasses = data.numClasses();
+        numClasses = data.getNumClasses();
         trainResults.setClassifierName(getClassifierName());
         trainResults.setParas(getParameters());
         trainResults.setBuildTime(System.nanoTime());
 
         double[][][] split = data.toValueArray();
 
-        breakpoints = new double[data.getMaxNumChannels()][][];
+        breakpoints = new double[data.getMaxNumDimensions()][][];
         for (int d = 0; d < breakpoints.length; d++) {
-            if (IGB) breakpoints[d] = IGB(split, d, data.getClassIndexes());
+            if (IGB) breakpoints[d] = IGB(split, d, data.getClassLabelIndexes());
             else breakpoints[d] = MCB(split, d); //breakpoints to be used for making sfa words for train
                                                  //AND test data
         }
 
-        SFAwords = new BitWord[data.getMaxNumChannels()][data.numInstances()][];
+        SFAwords = new BitWord[data.getMaxNumDimensions()][data.numInstances()][];
         bags = new ArrayList<>(data.numInstances());
         rand = new Random(seed);
         seriesLength = data.getMaxLength();
@@ -454,8 +454,8 @@ public class MultivariateIndividualTDE extends IndividualTDE {
         }
         else {
             for (int inst = 0; inst < data.numInstances(); ++inst) {
-                Bag bag = new Bag(data.get(inst).getLabelIndex());
-                for (int d = 0; d < data.getMaxNumChannels(); d++) {
+                Bag bag = new Bag(data.get(inst).getClassLabelIndex());
+                for (int d = 0; d < data.getMaxNumDimensions(); d++) {
                     SFAwords[d][inst] = createSFAwords(split[inst][d], d);
                     addWordsToSPBag(bag, wordLength, SFAwords[d][inst], d);
                 }
@@ -654,7 +654,7 @@ public class MultivariateIndividualTDE extends IndividualTDE {
 
         @Override
         public Bag call() {
-            Bag bag = new Bag(inst.getLabelIndex());
+            Bag bag = new Bag(inst.getClassLabelIndex());
 
             double[][] split = inst.toValueArray();
 

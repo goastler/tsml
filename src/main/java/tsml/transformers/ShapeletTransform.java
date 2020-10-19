@@ -14,7 +14,6 @@
  */   
 package tsml.transformers;
 
-import tsml.classifiers.TrainTimeContractable;
 import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.TimeSeriesInstances;
 import tsml.transformers.shapelet_tools.OrderLineObj;
@@ -294,7 +293,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
             out[0][i] = shapeletDistance.calculate(inst, 0);
         }
     
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null);
     }
 
     @Override
@@ -445,7 +444,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
             }
         }
 
-        return new TimeSeriesInstances(out, data.getClassIndexes());
+        return new TimeSeriesInstances(out, data.getClassLabelIndexes());
     }
 
     // given a set of instances transform it by the internal shapelets.
@@ -544,7 +543,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
         // construct a map for our K-shapelets lists, on for each classVal.
         if (kShapeletsMap == null) {
             kShapeletsMap = new TreeMap();
-            for (int i = 0; i < data.numClasses(); i++) {
+            for (int i = 0; i < data.getNumClasses(); i++) {
                 kShapeletsMap.put((double) i, new ArrayList<>());
             }
         }
@@ -562,7 +561,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
             // "+usedTime/1000000000.0+" Contract time (secs) ="+contractTime/1000000000.0+"
             // contracted = "+contracted+" search type = "+searchFunction.getSearchType());
             // get the Shapelets list based on the classValue of our current time series.
-            kShapelets = kShapeletsMap.get(data.get(casesSoFar).getLabelIndex());
+            kShapelets = kShapeletsMap.get(data.get(casesSoFar).getClassLabelIndex());
             // we only want to pass in the worstKShapelet if we've found K shapelets. but we
             // only care about
             // this class values worst one. This is due to the way we represent each classes
@@ -610,7 +609,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
             }
 
             // re-update the list because it's changed now.
-            kShapeletsMap.put((double)data.get(casesSoFar).getLabelIndex(), kShapelets);
+            kShapeletsMap.put((double)data.get(casesSoFar).getClassLabelIndex(), kShapelets);
             casesSoFar++;
             createSerialFile();
             usedTime = System.nanoTime() - startTime;
@@ -1616,7 +1615,7 @@ public class ShapeletTransform implements Serializable, TechnicalInformationHand
         }
 
         // Merge data into single list in round robin order
-        TimeSeriesInstances roundRobinData = new TimeSeriesInstances(data.getClassLabels());
+        TimeSeriesInstances roundRobinData = new TimeSeriesInstances(data.getClassesList());
         for (int i = 0; i < dataSize;) {
             // Allocate arrays for instances of every class
             for (int j = 0; j < classDistribution.size(); j++) {

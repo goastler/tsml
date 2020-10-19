@@ -23,14 +23,14 @@ public class ClassificationExamples {
                         { 4.0, 3.0, 2.0, 1.0 }, } };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data1.setClassLabels(new String[] { "A", "B" });
+        data1.setClasses(new String[] { "A", "B" });
 
         double[][][] in1 = { {
                 // time-series zero.
                 { 0.0, 1.0, 2.0, 4.0, 5.0 }, } };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[] { 0 });
-        data2.setClassLabels(new String[] { "A", "B" });
+        data2.setClasses(new String[] { "A", "B" });
 
         kNN nn = new kNN(1);
         nn.buildClassifier(Converter.toArff(data1));
@@ -55,7 +55,7 @@ public class ClassificationExamples {
         };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[]{0, 1});
-        data1.setClassLabels(new String[]{"A", "B"});
+        data1.setClasses(new String[]{"A", "B"});
 
         double[][][] in1 = {   
             {
@@ -65,7 +65,7 @@ public class ClassificationExamples {
         };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[]{0});
-        data2.setClassLabels(new String[]{"A", "B"});
+        data2.setClasses(new String[]{"A", "B"});
 
         TSClassifier nn = new TSClassifier(){
             kNN nn = new kNN(1);
@@ -97,7 +97,7 @@ public class ClassificationExamples {
         };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[]{0, 1});
-        data1.setClassLabels(new String[]{"A", "B"});
+        data1.setClasses(new String[]{"A", "B"});
 
         double[][][] in1 = {   
             {
@@ -107,7 +107,7 @@ public class ClassificationExamples {
         };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[]{0});
-        data2.setClassLabels(new String[]{"A", "B"});
+        data2.setClasses(new String[]{"A", "B"});
 
         TSClassifier stc = new ShapeletTransformClassifier();
         stc.buildClassifier(data1);

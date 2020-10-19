@@ -24,7 +24,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.TechnicalInformation;
 import weka.core.TechnicalInformationHandler;
-import weka.filters.SimpleBatchFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -245,7 +244,7 @@ public class SAX implements Transformer, TechnicalInformationHandler {
         paa.setNumIntervals(numIntervals);
         // Now convert PAA -> SAX
 
-        TimeSeriesInstances out = new TimeSeriesInstances(data.getClassLabels());
+        TimeSeriesInstances out = new TimeSeriesInstances(data.getClassesList());
         for (TimeSeriesInstance inst : data) {
             // lower mem to do it series at a time.
             out.add(transform(paa.transform(inst)));
@@ -265,7 +264,7 @@ public class SAX implements Transformer, TechnicalInformationHandler {
             out[i++] = o;
         }
 
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex());
     }
 
     /**

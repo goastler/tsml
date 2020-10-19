@@ -14,8 +14,6 @@
  */
 package tsml.transformers;
 
-import java.util.Arrays;
-
 import tsml.data_containers.TimeSeries;
 import tsml.data_containers.TimeSeriesInstance;
 /* Performs a FFT of the data set. NOTE:
@@ -313,7 +311,7 @@ public class FFT implements Transformer {
 			}
 		}
 
-		return new TimeSeriesInstance(out, inst.getLabelIndex());
+		return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null);
 	}
 
 	/**

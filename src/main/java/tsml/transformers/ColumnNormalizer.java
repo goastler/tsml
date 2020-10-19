@@ -165,7 +165,7 @@ public class ColumnNormalizer implements TrainableTransformer {
 				break;
 		}
 
-		return new TimeSeriesInstances(out, inst.getClassIndexes(), inst.getClassLabels());
+		return new TimeSeriesInstances(out, inst.getClassLabelIndexes(), inst.getClassesList());
 	}
 
 	/* Wont normalise the class value */

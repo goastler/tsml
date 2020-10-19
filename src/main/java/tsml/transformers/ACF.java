@@ -25,15 +25,12 @@ import utilities.InstanceTools;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import weka.core.Attribute;
-import weka.core.Capabilities;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
-import weka.filters.*;
 
 /**
  * <!-- globalinfo-start --> Implementation of autocorrelation function as a
@@ -527,6 +524,6 @@ public class ACF implements Transformer {
         }
         
         //create a new output instance with the ACF data.
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null);
     }
 }

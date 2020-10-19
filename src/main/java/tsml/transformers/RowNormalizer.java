@@ -222,7 +222,7 @@ public class RowNormalizer implements Transformer {
 	}
 
 	public static TimeSeriesInstances standardNorm(TimeSeriesInstances data) {
-		TimeSeriesInstances out = new TimeSeriesInstances(data.getClassLabels());
+		TimeSeriesInstances out = new TimeSeriesInstances(data.getClassesList());
 		for(TimeSeriesInstance inst : data){
 			out.add(standardNorm(inst));
 		}
@@ -231,7 +231,7 @@ public class RowNormalizer implements Transformer {
 	}
 
 	public static TimeSeriesInstances standard(TimeSeriesInstances data) {
-		TimeSeriesInstances out = new TimeSeriesInstances(data.getClassLabels());
+		TimeSeriesInstances out = new TimeSeriesInstances(data.getClassesList());
 		for(TimeSeriesInstance inst : data){
 			out.add(standard(inst));
 		}
@@ -240,7 +240,7 @@ public class RowNormalizer implements Transformer {
 	}
 
 	public static TimeSeriesInstances intervalNorm(TimeSeriesInstances data) {
-		TimeSeriesInstances out = new TimeSeriesInstances(data.getClassLabels());
+		TimeSeriesInstances out = new TimeSeriesInstances(data.getClassesList());
 		for(TimeSeriesInstance inst : data){
 			out.add(intervalNorm(inst));
 		}
@@ -266,7 +266,7 @@ public class RowNormalizer implements Transformer {
 			out.add(standardNorm(ts));
 		}
 		
-		return new TimeSeriesInstance(inst.getLabelIndex(), out);
+		return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null);
 	}
 
 	public static TimeSeriesInstance standard(TimeSeriesInstance inst) {
@@ -275,7 +275,7 @@ public class RowNormalizer implements Transformer {
 			out.add(standard(ts));
 		}
 		
-		return new TimeSeriesInstance(inst.getLabelIndex(), out);
+		return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null);
 	}
 
 	public static TimeSeriesInstance intervalNorm(TimeSeriesInstance inst) {
@@ -284,7 +284,7 @@ public class RowNormalizer implements Transformer {
 			out.add(intervalNorm(ts));
 		}
 		
-		return new TimeSeriesInstance(inst.getLabelIndex(), out);
+		return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null);
 	}
 
 	public static TimeSeries standardNorm(TimeSeries ts) {

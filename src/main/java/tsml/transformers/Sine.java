@@ -19,7 +19,6 @@ import java.io.File;
 import experiments.data.DatasetLoading;
 import tsml.data_containers.TimeSeries;
 import tsml.data_containers.TimeSeriesInstance;
-import utilities.InstanceTools;
 import weka.core.*;
 
 /*
@@ -47,7 +46,7 @@ public class Sine implements Transformer {
             }
             out[index++] = data;
         }
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex());
     }
 
     @Override

@@ -2,14 +2,12 @@ package tsml.data_containers.utilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.TimeSeriesInstances;
-import weka.core.Instances;
 
 public class TimeSeriesResampler {
     
@@ -21,15 +19,15 @@ public class TimeSeriesResampler {
 
         //create combined list.
         List<TimeSeriesInstance> all = new ArrayList<>(train.numInstances() + test.numInstances());
-        all.addAll(train.getAll());
-        all.addAll(test.getAll());
+        all.addAll(train);
+        all.addAll(test);
 
         int[] classCounts = train.getClassCounts();
 
         //build the map.
         Map<Integer, List<TimeSeriesInstance>> classBins = new HashMap<>();
         for(TimeSeriesInstance inst : all){
-            List<TimeSeriesInstance> values = classBins.computeIfAbsent(inst.getLabelIndex(), k -> new ArrayList<>());
+            List<TimeSeriesInstance> values = classBins.computeIfAbsent(inst.getClassLabelIndex(), k -> new ArrayList<>());
             values.add(inst);
         }
 
@@ -46,8 +44,8 @@ public class TimeSeriesResampler {
             new_test.addAll(bin.subList(occurences, bin.size()));//copy the remaining portion of the bin into the test set.
         }
 
-        return new TrainTest(new TimeSeriesInstances(new_train, train.getClassLabels()), 
-                             new TimeSeriesInstances(new_test, train.getClassLabels()));
+        return new TrainTest(new TimeSeriesInstances(new_train, train.getClassesList()), 
+                             new TimeSeriesInstances(new_test, train.getClassesList()));
     }
 
     //this function is the one from Instances, want to mirror there shuffling algorithm.

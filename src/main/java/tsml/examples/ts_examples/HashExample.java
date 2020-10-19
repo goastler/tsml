@@ -48,7 +48,7 @@ public class HashExample {
                                             );
 
         TimeSeriesInstances data = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data.setClassLabels(new String[] { "A", "B" });
+        data.setClasses(new String[] { "A", "B" });
 
 
         System.out.println(data.hashCode() == Arrays.deepHashCode(in));

@@ -56,12 +56,12 @@ public class TSWriter {
         outW.println("@timeStamps " + data.hasTimeStamps());
         outW.println("@missing " + data.hasMissing());
         outW.println("@univariate " + !data.isMultivariate());
-        outW.println("@dimensions " + data.getMaxNumChannels());
+        outW.println("@dimensions " + data.getMaxNumDimensions());
         outW.println("@equalLength " + data.isEqualLength());
         outW.println("@seriesLength " + data.getMaxLength());
         //outW.println("@classLabel " + );
         outW.print("@classLabel ");
-        outW.print(data.getClassLabels() != null && data.getClassLabels().length > 0);
+        outW.print(data.getClassesList() != null && data.getClassesList().length > 0);
         outW.println(data.getClassLabelsFormatted());
 
         outW.println("@data");
@@ -74,7 +74,7 @@ public class TSWriter {
                     sb.append(df.format(d.doubleValue())).append(",");
                 sb.replace(sb.length()-1,sb.length(),":"); //we use colon to separate dimensions, overwriter the last comma.
             }
-            sb.append(data.getClassLabels()[inst.getLabelIndex()]); //append the class label.
+            sb.append(data.getClassesList()[inst.getClassLabelIndex()]); //append the class label.
             sb.append("\n");
         }
 

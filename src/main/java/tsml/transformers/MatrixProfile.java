@@ -84,7 +84,7 @@ public class MatrixProfile implements Transformer {
         for (TimeSeries ts : inst) {
             out[i++] = new SingleInstanceMatrixProfile(ts.toArrayPrimitive(), this.windowSize, this.stride).series;
         }
-        return new TimeSeriesInstance(out, inst.getLabelIndex()); 
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null); 
     }
 
 

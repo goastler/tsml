@@ -1,7 +1,6 @@
 package tsml.data_containers.utilities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import tsml.data_containers.TimeSeries;
@@ -36,7 +35,7 @@ public class Splitter{
         List<TimeSeriesInstance> output = new ArrayList<>(slicingIndexes.length);
 
         for(int[] i : slicingIndexes){
-            TimeSeriesInstance temp = new TimeSeriesInstance(inst.getHSliceArray(i), inst.getLabelIndex());
+            TimeSeriesInstance temp = new TimeSeriesInstance(inst.getHSliceArray(i), inst.getClassLabelIndex());
             output.add(temp);
         }
 
@@ -51,11 +50,11 @@ public class Splitter{
     //horizontally slice into univariate TimeSeriesInstances.
     //can slice {{0},{1,2}}
     public static List<TimeSeriesInstances> splitTimeSeriesInstances(TimeSeriesInstances inst, int[][] slicingIndexes){
-        List<TimeSeriesInstances> output = new ArrayList<>(inst.getMaxNumChannels());
+        List<TimeSeriesInstances> output = new ArrayList<>(inst.getMaxNumDimensions());
 
         for(int[] i : slicingIndexes){
-            TimeSeriesInstances temp = new TimeSeriesInstances(inst.getHSliceArray(i), inst.getClassIndexes());
-            temp.setClassLabels(inst.getClassLabels());
+            TimeSeriesInstances temp = new TimeSeriesInstances(inst.getHSliceArray(i), inst.getClassLabelIndexes());
+            temp.setClasses(inst.getClassesList());
             output.add(temp);
         }
 
@@ -63,7 +62,7 @@ public class Splitter{
     }
 
     public static List<TimeSeriesInstances> splitTimeSeriesInstances(TimeSeriesInstances inst){
-        int[][] indexes = new int[inst.getMaxNumChannels()][];
+        int[][] indexes = new int[inst.getMaxNumDimensions()][];
         for(int i=0; i< indexes.length; i++)
             indexes[i] = new int[]{i};
         return splitTimeSeriesInstances(inst, indexes);
@@ -85,7 +84,7 @@ public class Splitter{
             for(double[] o : out)
                 ts_data.add(new TimeSeries(o));
         }   
-        return new TimeSeriesInstance(inst_dims.get(0).getLabelIndex(), ts_data);
+        return new TimeSeriesInstance(ts_data, inst_dims.get(0).getClassLabelIndex(), null);
     }
 
      //could merge dimension slices like. {0,1}, {2}, {3,4}
@@ -101,7 +100,7 @@ public class Splitter{
             out.add(mergeTimeSeriesInstance(single_instance));
         }
 
-        out.setClassLabels(inst_dims.get(0).getClassLabels());
+        out.setClasses(inst_dims.get(0).getClassesList());
         return out;
     }
 }

@@ -23,8 +23,6 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.filters.Filter;
-import weka.filters.SimpleBatchFilter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -179,7 +177,7 @@ public class SummaryStats implements Transformer {
             out[i][j++] = stats.getMax();
             i++;
         }
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex());
     }
 
 

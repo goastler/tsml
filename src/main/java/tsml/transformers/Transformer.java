@@ -10,8 +10,6 @@ import tsml.data_containers.TSCapabilitiesHandler;
 import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.TimeSeriesInstances;
 import tsml.data_containers.utilities.Converter;
-import weka.core.Capabilities;
-import weka.core.CapabilitiesHandler;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -103,7 +101,7 @@ public interface Transformer extends TSCapabilitiesHandler, ParamHandler, Serial
      */
     default TimeSeriesInstances transform(TimeSeriesInstances data){
         //when cloning skeleton of TSInstances, copy across classLabels.
-        TimeSeriesInstances output = new TimeSeriesInstances(data.getClassLabels());
+        TimeSeriesInstances output = new TimeSeriesInstances(data.getClassesList());
         for(TimeSeriesInstance inst : data){
             output.add(transform(inst));
         }

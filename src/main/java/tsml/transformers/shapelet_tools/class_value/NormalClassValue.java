@@ -56,7 +56,7 @@ public class NormalClassValue implements Serializable{
     //this will get updated as and when we work with a new shapelet.
     public void setShapeletValue(TimeSeriesInstance shapeletSeries)
     {
-        shapeletValue = shapeletSeries.getLabelIndex();
+        shapeletValue = shapeletSeries.getClassLabelIndex();
     }
     
     public double getClassValue(Instance in){
@@ -64,7 +64,7 @@ public class NormalClassValue implements Serializable{
     }
 
     public double getClassValue(TimeSeriesInstance in){
-        return in.getLabelIndex();
+        return in.getClassLabelIndex();
     }
 
     public double getShapeletValue() {

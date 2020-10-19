@@ -56,7 +56,7 @@ public class Converter {
             labels[i] = data.classAttribute().value(i);
 
         TimeSeriesInstances output = new TimeSeriesInstances(raw_data, label_indexes);
-        output.setClassLabels(labels);
+        output.setClasses(labels);
         output.setProblemName(data.relationName());
 
         return output;
@@ -90,11 +90,11 @@ public class Converter {
 
     public static Instances toArff(TimeSeriesInstances  data){
         double[][][] values = data.toValueArray();
-        int[] classIndexes = data.getClassIndexes();
-        String[] classLabels = data.getClassLabels();
+        int[] classIndexes = data.getClassLabelIndexes();
+        String[] classLabels = data.getClassesList();
 
         int numAttributes = data.getMaxLength();
-        int numChannels = data.getMaxNumChannels();
+        int numChannels = data.getMaxNumDimensions();
 
         if(data.isMultivariate()){
             //create relational attributes.
@@ -170,7 +170,7 @@ public class Converter {
     public static Instance toArff(TimeSeriesInstance data){
         int numChannels = data.getNumDimensions();
         if(numChannels == 1)
-            return new DenseInstance(1.0, ArrayUtils.add(data.toValueArray()[0], data.getLabelIndex()));
+            return new DenseInstance(1.0, ArrayUtils.add(data.toValueArray()[0], data.getClassLabelIndex()));
 
 
         int numAttributes = data.getMaxLength();
@@ -184,7 +184,7 @@ public class Converter {
         Instances relational = new Instances(relationalHeader, numChannels);
 
         double[][] values = data.toValueArray();
-        int classIndex = data.getLabelIndex();
+        int classIndex = data.getClassLabelIndex();
 
         //each dense instance is row/ which is actually a channel.
         for(int j=0; j< numChannels; j++){

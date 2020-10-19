@@ -298,7 +298,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
     public void buildClassifier(final TimeSeriesInstances data) throws Exception {
         trainResults = new ClassifierResults();
         rand.setSeed(seed);
-        numClasses = data.numClasses();
+        numClasses = data.getNumClasses();
         trainResults.setClassifierName(getClassifierName());
         trainResults.setBuildTime(System.nanoTime());
         // can classifier handle the data?
@@ -745,7 +745,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
         }
         indiv.setSubsampleIndices(subsampleIndices);
 
-        return new TimeSeriesInstances(data, series.getClassLabels());
+        return new TimeSeriesInstances(data, series.getClassesList());
     }
 
     /**
@@ -756,10 +756,10 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
      * @return subsampled data
      */
     private TimeSeriesInstances subsampleDimensions(TimeSeriesInstances series, MultivariateIndividualTDE indiv) {
-        int newSize = (int) (series.getMaxNumChannels() * dimensionProportion);
+        int newSize = (int) (series.getMaxNumDimensions() * dimensionProportion);
 
         ArrayList<Integer> subsampleIndices = new ArrayList<>();
-        for (int n = 0; n < series.getMaxNumChannels(); n++){
+        for (int n = 0; n < series.getMaxNumDimensions(); n++){
             subsampleIndices.add(n);
         }
 
@@ -768,8 +768,8 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
         }
 
         TimeSeriesInstances data = new TimeSeriesInstances(series.getHSliceArray(subsampleIndices),
-                series.getClassIndexes());
-        data.setClassLabels(series.getClassLabels());
+                series.getClassLabelIndexes());
+        data.setClasses(series.getClassesList());
         indiv.dimensionSubsample = subsampleIndices;
 
         return data;
@@ -806,7 +806,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
 
             int idx = 0;
             for (Future<Double> f : futures) {
-                if (f.get() == series.get(idx).getLabelIndex()) {
+                if (f.get() == series.get(idx).getClassLabelIndex()) {
                     ++correct;
                 }
                 idx++;
@@ -822,7 +822,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                 }
 
                 double c = indiv.classifyInstance(i); //classify series i, while ignoring its corresponding histogram i
-                if (c == series.get(i).getLabelIndex()) {
+                if (c == series.get(i).getClassLabelIndex()) {
                     ++correct;
                 }
 
@@ -846,7 +846,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
     private void findEnsembleTrainEstimate() throws Exception {
         if (estimator == EstimatorMethod.OOB && trainProportion < 1){
             for (int i = 0; i < train.numInstances(); ++i) {
-                double[] probs = new double[train.numClasses()];
+                double[] probs = new double[train.getNumClasses()];
                 double sum = 0;
 
                 for (int j = 0; j < classifiers.size(); j++) {
@@ -863,10 +863,10 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                         probs[j] = (probs[j] / sum);
                 }
                 else{
-                    Arrays.fill(probs, 1.0 / train.numClasses());
+                    Arrays.fill(probs, 1.0 / train.getNumClasses());
                 }
 
-                trainResults.addPrediction(train.get(i).getLabelIndex(), probs, findIndexOfMax(probs, rand),
+                trainResults.addPrediction(train.get(i).getClassLabelIndex(), probs, findIndexOfMax(probs, rand),
                         -1, "");
             }
 
@@ -874,7 +874,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
             trainResults.setErrorEstimateMethod("OOB");
         }
         else {
-            double[][] trainDistributions = new double[train.numInstances()][train.numClasses()];
+            double[][] trainDistributions = new double[train.numInstances()][train.getNumClasses()];
             int[] idxSubsampleCount = new int[train.numInstances()];
 
             if (estimator == EstimatorMethod.NONE) {
@@ -913,7 +913,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                     probs = distributionForInstance(i);
                 }
 
-                trainResults.addPrediction(train.get(i).getLabelIndex(), probs, findIndexOfMax(probs, rand),
+                trainResults.addPrediction(train.get(i).getClassLabelIndex(), probs, findIndexOfMax(probs, rand),
                         -1, "");
             }
         }
@@ -933,7 +933,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
      * @throws Exception failure to classify
      */
     private double[] distributionForInstance(int test) throws Exception {
-        double[] probs = new double[train.numClasses()];
+        double[] probs = new double[train.getNumClasses()];
 
         //get sum of all channels, votes from each are weighted the same.
         double sum = 0;
@@ -964,7 +964,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                 probs[i] = (probs[i] / sum);
         }
         else{
-            Arrays.fill(probs, 1.0 / train.numClasses());
+            Arrays.fill(probs, 1.0 / train.getNumClasses());
         }
 
         return probs;
@@ -991,7 +991,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                 TimeSeriesInstance d;
                 if (train.isMultivariate() && dimensionProportion > 0 && dimensionProportion < 1) {
                     d = new TimeSeriesInstance(instance.getHSliceArray(
-                            ((MultivariateIndividualTDE)classifier).dimensionSubsample), instance.getLabelIndex());
+                            ((MultivariateIndividualTDE)classifier).dimensionSubsample), instance.getClassLabelIndex());
                 }
                 else{
                     d = instance;
@@ -1017,7 +1017,7 @@ public class TDE extends EnhancedAbstractClassifier implements TrainTimeContract
                 TimeSeriesInstance d;
                 if (train.isMultivariate() && dimensionProportion > 0 && dimensionProportion < 1) {
                     d = new TimeSeriesInstance(instance.getHSliceArray(
-                            ((MultivariateIndividualTDE)classifier).dimensionSubsample), instance.getLabelIndex());
+                            ((MultivariateIndividualTDE)classifier).dimensionSubsample), instance.getClassLabelIndex());
                 }
                 else{
                     d = instance;

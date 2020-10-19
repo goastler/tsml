@@ -8,10 +8,8 @@ import org.apache.commons.math3.transform.TransformType;
 
 import tsml.data_containers.TimeSeries;
 import tsml.data_containers.TimeSeriesInstance;
-import tsml.data_containers.TimeSeriesInstances;
 import utilities.multivariate_tools.MultivariateInstanceTools;
 import weka.core.*;
-import weka.filters.SimpleBatchFilter;
 
 import static experiments.data.DatasetLoading.loadDataNullable;
 
@@ -124,7 +122,7 @@ public class Spectrogram implements Transformer {
                 out.add(new TimeSeries(spec));
             }
         }
-        return new TimeSeriesInstance(inst.getLabelIndex(), out);
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex(), null);
     }
 
     public int getNumWindows(int signalLength) {

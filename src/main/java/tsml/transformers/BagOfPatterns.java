@@ -18,7 +18,6 @@ import experiments.data.DatasetLoading;
 import tsml.data_containers.TimeSeries;
 import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.TimeSeriesInstances;
-import utilities.NumUtils;
 import utilities.StatisticalUtilities;
 
 import java.io.File;
@@ -28,8 +27,6 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SparseInstance;
-import weka.filters.SimpleBatchFilter;
 
 /**
  * Filter to transform time series into a bag of patterns representation. i.e
@@ -242,7 +239,7 @@ public class BagOfPatterns implements TrainableTransformer {
         }
         
         //create a new output instance with the ACF data.
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex());
     }
 
     @Override

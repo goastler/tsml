@@ -3,7 +3,6 @@ package tsml.examples.ts_examples;
 import java.util.ArrayList;
 import java.util.List;
 
-import machine_learning.classifiers.kNN;
 import tsml.classifiers.EnhancedAbstractClassifier;
 import tsml.classifiers.frequency_based.RISE;
 import tsml.classifiers.interval_based.TSF;
@@ -32,7 +31,7 @@ public class SplittingExamples {
         };
 
         final TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[]{0, 1});
-        data1.setClassLabels(new String[]{"A", "B"});
+        data1.setClasses(new String[]{"A", "B"});
 
         final List<TimeSeriesInstances> individual_dims = Splitter.splitTimeSeriesInstances(data1);
 
@@ -67,7 +66,7 @@ public class SplittingExamples {
         };
 
         final TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[]{0, 1});
-        data1.setClassLabels(new String[]{"A", "B"});
+        data1.setClasses(new String[]{"A", "B"});
 
         final List<TimeSeriesInstances> individual_dims = Splitter.splitTimeSeriesInstances(data1, new int[][]{{0},{1,2}});
 

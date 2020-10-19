@@ -277,7 +277,7 @@ public class Truncator implements TrainableTransformer{
 	public TimeSeriesInstance transform(TimeSeriesInstance inst) {
 		return new TimeSeriesInstance(
                 inst.getVSliceList(IntStream.range(0, shortestSeriesLength).toArray()),
-                inst.getLabelIndex()
+                inst.getClassLabelIndex()
             );
     }
     

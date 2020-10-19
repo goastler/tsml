@@ -21,7 +21,6 @@ import tsml.data_containers.TimeSeries;
 import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.utilities.TimeSeriesSummaryStatistics;
 import utilities.InstanceTools;
-import weka.filters.*;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -198,7 +197,7 @@ public class RunLength implements Transformer {
             out[i++] = create_data(ts.toArrayPrimitive(), useGlobalMean ? globalMean : TimeSeriesSummaryStatistics.mean(ts));
         }
 
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex());
     }
 	
 	

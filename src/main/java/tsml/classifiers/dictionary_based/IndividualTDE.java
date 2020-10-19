@@ -698,7 +698,7 @@ public class IndividualTDE extends EnhancedAbstractClassifier implements Compara
     private Bag BOSSSpatialPyramidsTransform(TimeSeriesInstance inst) {
         double[][] mfts = performMFT(inst.toValueArray()[0]); //approximation
         Bag bag = createSPBagSingle(mfts); //discretisation/bagging
-        bag.setClassVal(inst.getLabelIndex());
+        bag.setClassVal(inst.getClassLabelIndex());
         return bag;
     }
 
@@ -844,14 +844,14 @@ public class IndividualTDE extends EnhancedAbstractClassifier implements Compara
     public void buildClassifier(TimeSeriesInstances data) throws Exception {
         trainResults = new ClassifierResults();
         rand.setSeed(seed);
-        numClasses = data.numClasses();
+        numClasses = data.getNumClasses();
         trainResults.setClassifierName(getClassifierName());
         trainResults.setParas(getParameters());
         trainResults.setBuildTime(System.nanoTime());
 
         double[][][] split = data.toValueArray();
 
-        if (IGB) breakpoints = IGB(split, 0, data.getClassIndexes());
+        if (IGB) breakpoints = IGB(split, 0, data.getClassLabelIndexes());
         else breakpoints = MCB(split, 0); //breakpoints to be used for making sfa words for train
                                              //AND test data
 
@@ -875,7 +875,7 @@ public class IndividualTDE extends EnhancedAbstractClassifier implements Compara
             for (int inst = 0; inst < data.numInstances(); ++inst) {
                 SFAwords[inst] = createSFAwords(data.get(inst).toValueArray()[0]);
                 Bag bag = createSPBagFromWords(wordLength, SFAwords[inst]);
-                bag.setClassVal(data.get(inst).getLabelIndex());
+                bag.setClassVal(data.get(inst).getClassLabelIndex());
                 bags.add(bag);
             }
         }
@@ -1099,7 +1099,7 @@ public class IndividualTDE extends EnhancedAbstractClassifier implements Compara
 
             Bag bag = createSPBagFromWords(wordLength, SFAwords[i]);
             try {
-                bag.setClassVal(inst.getLabelIndex());
+                bag.setClassVal(inst.getClassLabelIndex());
             }
             catch(UnassignedClassException e){
                 bag.setClassVal(-1);

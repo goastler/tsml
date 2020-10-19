@@ -139,7 +139,7 @@ public class Pipeline extends EnhancedAbstractClassifier {
 
         @Override
         TimeSeriesInstances predict(TimeSeriesInstances data) throws Exception {            
-            return new TimeSeriesInstances(new double[][][]{classifier.distributionForInstances(data)}, data.getClassIndexes(), data.getClassLabels());
+            return new TimeSeriesInstances(new double[][][]{classifier.distributionForInstances(data)}, data.getClassLabelIndexes(), data.getClassesList());
         }
     }
 
@@ -372,7 +372,7 @@ public class Pipeline extends EnhancedAbstractClassifier {
 
                 output[j] = output1;
             }
-            return new TimeSeriesInstances(output, data.getClassIndexes(), data.getClassLabels());
+            return new TimeSeriesInstances(output, data.getClassLabelIndexes(), data.getClassesList());
         }
     }
 

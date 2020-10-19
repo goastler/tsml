@@ -37,12 +37,9 @@ import java.util.logging.Level;
 import tsml.classifiers.EnhancedAbstractClassifier;
 import tsml.classifiers.distance_based.utils.classifiers.TestTimeable;
 import tsml.classifiers.distance_based.utils.classifiers.results.ResultUtils;
-import tsml.classifiers.distance_based.utils.strings.StrUtils;
 import tsml.classifiers.distance_based.utils.system.logging.Loggable;
 import tsml.classifiers.distance_based.utils.system.memory.MemoryWatcher;
 import tsml.classifiers.distance_based.utils.system.timing.StopWatch;
-import weka.classifiers.*;
-import weka.classifiers.bayes.*;
 
 import weka.classifiers.evaluation.EvaluationUtils;
 import weka.classifiers.evaluation.NominalPrediction;
@@ -57,14 +54,8 @@ import weka.core.DenseInstance;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.Randomizable;
 import weka.filters.supervised.attribute.NominalToBinary;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
-
-
-import fileIO.OutFile;
-import statistics.distributions.NormalDistribution;
-import machine_learning.classifiers.kNN;
 
 /**
  * @author ajb
@@ -114,7 +105,7 @@ public class ClassifierTools {
 			d=test.get(i);
 			try{
 				predictedClass=c.classifyInstance(d);
-				trueClass=d.getLabelIndex();
+				trueClass=d.getClassLabelIndex();
 				if(trueClass==predictedClass)
 					a++;
 //				System.out.println("True = "+trueClass+" Predicted = "+predictedClass);

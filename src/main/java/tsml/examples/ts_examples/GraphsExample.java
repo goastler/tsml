@@ -8,7 +8,6 @@ import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.TimeSeriesInstances;
 import tsml.data_containers.utilities.TimeSeriesSummaryStatistics;
 import tsml.graphs.Pipeline;
-import tsml.graphs.Pipeline.*;
 import tsml.transformers.Cosine;
 import tsml.transformers.Sine;
 import tsml.transformers.Truncator;
@@ -27,14 +26,14 @@ public class GraphsExample {
                         { 4.0, 3.0, 2.0, 1.0, 1.0 }, } };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data1.setClassLabels(new String[] { "A", "B" });
+        data1.setClasses(new String[] { "A", "B" });
 
         double[][][] in1 = { {
                 // time-series zero.
                 { 0.0, 1.0, 2.0, 4.0, 5.0 }, } };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[] { 0 });
-        data2.setClassLabels(new String[] { "A", "B" });
+        data2.setClasses(new String[] { "A", "B" });
 
         // this is a sequential pipeline.
         // this is a sequential pipeline.
@@ -49,7 +48,7 @@ public class GraphsExample {
         int i=0;
         for(TimeSeriesInstance inst : data2){
             System.out.println(Arrays.toString(preds[i]));
-            if(inst.getLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
+            if(inst.getClassLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
                 count++;
 
             i++;
@@ -81,7 +80,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data1.setClassLabels(new String[] { "A", "B" });
+        data1.setClasses(new String[] { "A", "B" });
 
         double[][][] in1 = { 
             {
@@ -92,7 +91,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[] { 0 });
-        data2.setClassLabels(new String[] { "A", "B" });
+        data2.setClasses(new String[] { "A", "B" });
 
         // this is a sequential pipeline.
         Pipeline model = new Pipeline();
@@ -112,7 +111,7 @@ public class GraphsExample {
         int i=0;
         for(TimeSeriesInstance inst : data2){
             System.out.println(Arrays.toString(preds[i]));
-            if(inst.getLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
+            if(inst.getClassLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
                 count++;
 
             i++;
@@ -143,7 +142,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data1.setClassLabels(new String[] { "A", "B" });
+        data1.setClasses(new String[] { "A", "B" });
 
         double[][][] in1 = { {
                 // time-series zero.
@@ -153,7 +152,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[] { 0 });
-        data2.setClassLabels(new String[] { "A", "B" });
+        data2.setClasses(new String[] { "A", "B" });
 
         // this is a sequential pipeline.
         Pipeline model = new Pipeline();
@@ -177,7 +176,7 @@ public class GraphsExample {
         int i=0;
         for(TimeSeriesInstance inst : data2){
             System.out.println(Arrays.toString(preds[i]));
-            if(inst.getLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
+            if(inst.getClassLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
                 count++;
 
             i++;
@@ -209,7 +208,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data1.setClassLabels(new String[] { "A", "B" });
+        data1.setClasses(new String[] { "A", "B" });
 
         double[][][] in1 = { {
                 // time-series zero.
@@ -219,7 +218,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[] { 0 });
-        data2.setClassLabels(new String[] { "A", "B" });
+        data2.setClasses(new String[] { "A", "B" });
 
         // this is a sequential pipeline.
         Pipeline model = new Pipeline();
@@ -243,7 +242,7 @@ public class GraphsExample {
         int i=0;
         for(TimeSeriesInstance inst : data2){
             System.out.println(Arrays.toString(preds[i]));
-            if(inst.getLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
+            if(inst.getClassLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
                 count++;
 
             i++;
@@ -275,7 +274,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data1.setClassLabels(new String[] { "A", "B" });
+        data1.setClasses(new String[] { "A", "B" });
 
         double[][][] in1 = { {
                 // time-series zero.
@@ -285,7 +284,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[] { 0 });
-        data2.setClassLabels(new String[] { "A", "B" });
+        data2.setClasses(new String[] { "A", "B" });
 
         // this is a sequential pipeline.
         Pipeline model = new Pipeline();
@@ -310,7 +309,7 @@ public class GraphsExample {
         int i=0;
         for(TimeSeriesInstance inst : data2){
             System.out.println(Arrays.toString(preds[i]));
-            if(inst.getLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
+            if(inst.getClassLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
                 count++;
 
             i++;
@@ -343,7 +342,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data1 = new TimeSeriesInstances(in, new int[] { 0, 1 });
-        data1.setClassLabels(new String[] { "A", "B" });
+        data1.setClasses(new String[] { "A", "B" });
 
         double[][][] in1 = { {
                 // time-series zero.
@@ -354,7 +353,7 @@ public class GraphsExample {
         };
 
         TimeSeriesInstances data2 = new TimeSeriesInstances(in1, new int[] { 0 });
-        data2.setClassLabels(new String[] { "A", "B" });
+        data2.setClasses(new String[] { "A", "B" });
 
         // this is a sequential pipeline.
         Pipeline model = new Pipeline();
@@ -383,7 +382,7 @@ public class GraphsExample {
         int i=0;
         for(TimeSeriesInstance inst : data2){
             System.out.println(Arrays.toString(preds[i]));
-            if(inst.getLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
+            if(inst.getClassLabelIndex() == TimeSeriesSummaryStatistics.argmax(preds[i]))
                 count++;
 
             i++;

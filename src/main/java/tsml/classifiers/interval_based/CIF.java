@@ -311,7 +311,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
          */
         trainResults = new ClassifierResults();
         rand.setSeed(seed);
-        numClasses = data.numClasses();
+        numClasses = data.getNumClasses();
         trainResults.setClassifierName(getClassifierName());
         trainResults.setBuildTime(System.nanoTime());
         // can classifier handle the data?
@@ -329,7 +329,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
         else {
             seriesLength = data.getMaxLength();
             numInstances = data.numInstances();
-            numDimensions = data.getMaxNumChannels();
+            numDimensions = data.getMaxNumDimensions();
 
             if (numIntervalsFinder == null){
                 numIntervals = (int)(Math.sqrt(seriesLength) * Math.sqrt(numDimensions));
@@ -423,7 +423,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
         result.setClassIndex(result.numAttributes()-1);
         for(int i = 0; i < numInstances; i++){
             DenseInstance in = new DenseInstance(result.numAttributes());
-            in.setValue(result.numAttributes()-1, data.get(i).getLabelIndex());
+            in.setValue(result.numAttributes()-1, data.get(i).getClassLabelIndex());
             result.add(in);
         }
 
@@ -581,7 +581,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
 
                     if (sameInst) continue;
 
-                    result.instance(k).setValue(result.classIndex(), data.get(instIdx).getLabelIndex());
+                    result.instance(k).setValue(result.classIndex(), data.get(instIdx).getClassLabelIndex());
                 } else {
                     instIdx = k;
                 }
@@ -720,7 +720,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
      */
     private void multiThreadBuildCIF(TimeSeriesInstances data, Instances result) throws Exception {
         double[][][] dimensions = data.toValueArray();
-        int[] classVals = data.getClassIndexes();
+        int[] classVals = data.getClassLabelIndexes();
         int buildStep = trainTimeContract ? numThreads : numClassifiers;
 
         while (withinTrainContract(trainResults.getBuildTime()) && trees.size() < numClassifiers) {
@@ -779,7 +779,7 @@ public class CIF extends EnhancedAbstractClassifier implements TechnicalInformat
                 for(int k=0;k<trainDistributions[j].length;k++)
                     trainDistributions[j][k] /= oobCounts[j];
                 preds[j] = findIndexOfMax(trainDistributions[j], rand);
-                actuals[j] = data.get(j).getLabelIndex();
+                actuals[j] = data.get(j).getClassLabelIndex();
                 predTimes[j] = System.nanoTime()-predTime;
             }
             trainResults.addAllPredictions(actuals,preds, trainDistributions, predTimes, null);

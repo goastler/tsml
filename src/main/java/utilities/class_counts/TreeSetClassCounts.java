@@ -52,7 +52,7 @@ public class TreeSetClassCounts extends ClassCounts{
     public TreeSetClassCounts(TimeSeriesInstances data) {
         classDistribution = new TreeMap<>();
         for(TimeSeriesInstance inst : data){
-            classDistribution.merge((double)inst.getLabelIndex(), 1, Integer::sum);
+            classDistribution.merge((double)inst.getClassLabelIndex(), 1, Integer::sum);
         }
     }
     

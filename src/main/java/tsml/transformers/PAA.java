@@ -22,7 +22,6 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.filters.SimpleBatchFilter;
 
 /**
  * Filter to reduce dimensionality of a time series into Piecewise Aggregate
@@ -109,7 +108,7 @@ public class PAA implements Transformer {
             out[i++] = convertInstance(ts.toArrayPrimitive());
         }
 
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex());
     }
 
     private double[] convertInstance(double[] data)

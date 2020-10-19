@@ -5,13 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import experiments.data.DatasetLoading;
 import tsml.data_containers.TimeSeriesInstance;
 import tsml.data_containers.TimeSeriesInstances;
 import tsml.data_containers.ts_fileIO.TSReader;
@@ -71,7 +66,7 @@ public class CombineTransformer implements Transformer {
                     data.get(i).add(d);
         }
 
-        return new TimeSeriesInstance(data, inst.getLabelIndex());
+        return new TimeSeriesInstance(data, inst.getClassLabelIndex());
     }
 
     @Override

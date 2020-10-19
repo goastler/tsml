@@ -14,7 +14,6 @@ import tsml.data_containers.TimeSeriesInstances;
 import tsml.data_containers.utilities.TimeSeriesSummaryStatistics;
 import utilities.ClassifierTools;
 import utilities.InstanceTools;
-import weka.classifiers.meta.RotationForest;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -213,7 +212,7 @@ public class Resizer implements TrainableTransformer {
             i++;
         }
 
-        return new TimeSeriesInstance(out, inst.getLabelIndex());
+        return new TimeSeriesInstance(out, inst.getClassLabelIndex());
     }
 
     @Override
